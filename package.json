@@ -1,0 +1,19 @@
+{
+  "name": "album_projet",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "/home/afissad/albumPhotoProject/depot/"
+  },
+  "author": "me myself and i",
+  "license": "ISC",
+  "dependencies": {
+    "dateformat": "^3.0.3",
+    "express": "^4.17.1"
+  }
+}
