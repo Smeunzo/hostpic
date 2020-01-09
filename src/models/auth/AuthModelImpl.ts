@@ -53,10 +53,10 @@ export class AuthModelImpl implements AuthModel{
 
 
     /**
-     * @see AuthModel/sinUp
+     * @see AuthModel/signUp
      * @param data
      */
-    async sinUp(data: any): Promise<any> {
+    async signUp(data: any): Promise<any> {
         const logInData : LogInData = plainToClass(LogInData ,data, {strategy :"excludeAll"});
         await this.validate(logInData);
 

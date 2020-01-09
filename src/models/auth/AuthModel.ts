@@ -15,7 +15,7 @@ export interface AuthModel {
      * @return une promesse d'avoir l'identifiant du nouvel
      * utilisateur
      */
-    sinUp(data : any) : Promise<any>;
+    signUp(data : any) : Promise<any>;
 
     /** Récupère l'identifiant d'un utilisateur
      * à partir des informations passées en paramètres
