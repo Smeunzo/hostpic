@@ -1,0 +1,21 @@
+doctype html
+html(lang="fr")
+    head
+        title
+            block title
+        link(href='/bootstrap/bootstrap.min.css', rel='stylesheet')
+        script(src='/bootstrap/bootstrap.min.js')
+        link(href='/icons/material-icons.css', rel='stylesheet')
+    body
+        header
+            div(class='navbar navbar-dark bg-dark')
+                div(class="container")
+                    div
+                        a(class="navbar-brand" href="/")
+                            i(class="material-icons") home
+                        span(class="navbar-brand")
+                            block title
+        main
+            div(class='container')
+                br
+                block content

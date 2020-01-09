@@ -9,9 +9,8 @@ const homeController = new HomeController();
 
 const myExpress = express();
 myExpress.set('view engine','pug');
-
 myExpress.get('/', homeController.router());
-
+myExpress.use(express.static('public'));
 myExpress.listen(4200, function () {
     console.log('Go to http://localhost:4200')
 });
