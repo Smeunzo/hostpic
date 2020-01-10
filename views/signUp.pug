@@ -1,15 +1,19 @@
 extends layout.pug
 
-include errors
+//-include errors
 
 block title
-    | #{__('Sign up')}
+    | Inscription
 
 block content
     form(method="POST")
-        +errors(errors)
+        //-+errors(errors)
         div(class="form-group")
-            label(for="username") #{__('Username')} (#{__('only letters and numbers')})
+            if logInData
+                -var Uname = logInData.username
+            else
+                -var Uname = ''
+            label(for="username") Nom d'utilisateur (seulement des lettres et des chiffre
             input(
                 type="text" 
                 class="form-control" 
@@ -19,9 +23,10 @@ block content
                 maxlength=20
                 pattern="[A-Za-z0-9]*"
                 required
-                value=logInData.username)
+                value=Uname
+                placeholder="Nom d'utilisateur")
         div(class="form-group")
-            label(for="password") #{__('Password')} (#{__('no whitespace')})
+            label(for="password") Mot de passe (sans espace)
             input(
                 type="password" 
                 class="form-control" 
@@ -31,7 +36,7 @@ block content
                 maxlength=20
                 pattern="\\S*"
                 required
-                value=logInData.password)
-        button(type="submit" class="btn btn-success") #{__('Sign up')}
+                placeholder="Mot de passe")
+        button(type="submit" class="btn btn-success") S'inscrire
 
 
