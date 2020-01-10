@@ -10,8 +10,8 @@ export class LogInData{
     @Expose()
     @IsString()
     @IsAlphanumeric()
-    @MinLength(3,{message : "Nom d'utilisateur trop court"})
-    @MaxLength(20, {message : "Nom d'utilisateur trop long"})
+    @MinLength(3,{message : "Username is too short"})
+    @MaxLength(20, {message : "Username is too long"})
     username :string;
 
     /**

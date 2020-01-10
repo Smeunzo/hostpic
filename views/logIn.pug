@@ -1,0 +1,39 @@
+extends layout.pug
+
+include errors
+
+block title
+    | #{__('Log in')}
+
+block content
+    form(method="POST")
+        +errors(errors)
+        div(class="form-group")
+            label(for="username") #{__('Username')}
+            input(
+                type="text" 
+                class="form-control" 
+                name="username" 
+                id="username" 
+                minlength=3
+                maxlength=20
+                pattern="[A-Za-z0-9]*"
+                required
+                value=logInData.username)
+        div(class="form-group")
+            label(for="password") #{__('Password')}
+            input(
+                type="password" 
+                class="form-control" 
+                name="password" 
+                id="password" 
+                minlength=3
+                maxlength=20
+                pattern="\\S*"
+                required
+                value=logInData.password)
+        div(class="btn-group")
+            button(type="submit" class="btn btn-success") #{__('Log in')}
+            a(href="/auth/signUp" class="btn btn-primary") #{__('Sign up')}
+
+

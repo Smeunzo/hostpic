@@ -1,0 +1,37 @@
+extends layout.pug
+
+include errors
+
+block title
+    | #{__('Sign up')}
+
+block content
+    form(method="POST")
+        +errors(errors)
+        div(class="form-group")
+            label(for="username") #{__('Username')} (#{__('only letters and numbers')})
+            input(
+                type="text" 
+                class="form-control" 
+                name="username" 
+                id="username" 
+                minlength=3
+                maxlength=20
+                pattern="[A-Za-z0-9]*"
+                required
+                value=logInData.username)
+        div(class="form-group")
+            label(for="password") #{__('Password')} (#{__('no whitespace')})
+            input(
+                type="password" 
+                class="form-control" 
+                name="password" 
+                id="password" 
+                minlength=3
+                maxlength=20
+                pattern="\\S*"
+                required
+                value=logInData.password)
+        button(type="submit" class="btn btn-success") #{__('Sign up')}
+
+
