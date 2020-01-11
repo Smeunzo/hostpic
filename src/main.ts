@@ -6,6 +6,8 @@ import {AuthController} from "./controllers/auth/AuthController";
 import {AuthModel} from "./models/auth/AuthModel";
 import {AuthModelImpl} from "./models/auth/AuthModelImpl";
 import session = require("express-session");
+import {AlbumController} from "./controllers/album/AlbumController";
+import {PictureModelImpl} from "./models/picture/PictureModelImpl";
 
 
 async function start() {
@@ -13,6 +15,9 @@ async function start() {
      const db : Db = mongoClient.db('project');
 
     const homeController = new HomeController();
+
+    const pictureModel = new PictureModelImpl(db);
+    const albumController = new AlbumController(pictureModel);
 
     const authModel : AuthModel = new AuthModelImpl(db);
     const authController = new AuthController(authModel,'/auth/login');
@@ -26,7 +31,7 @@ async function start() {
         resave : false,
         saveUninitialized : false,
         cookie :{
-            maxAge : 1000 * 60 * 10,
+            maxAge : 1000 * 60 * 60,
             httpOnly : true
         }
     }));
@@ -36,6 +41,7 @@ async function start() {
     myExpress.use(authController.getUser.bind(authController));
     myExpress.use('/', homeController.router());
     myExpress.use('/auth',authController.router());
+    myExpress.use('/album',albumController.router());
     myExpress.use(express.static('public'));
     myExpress.listen(4200, function () {
         console.log('Go to http://localhost:4200')
