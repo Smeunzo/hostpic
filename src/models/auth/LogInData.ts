@@ -25,6 +25,6 @@ export class LogInData{
     password : string;
     constructor() {
         this.username ="";
-        this.password =""
+        this.password ="";
     }
 }

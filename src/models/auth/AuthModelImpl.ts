@@ -25,8 +25,8 @@ export class AuthModelImpl implements AuthModel {
         const logInData : LogInData = plainToClass(LogInData, data, {strategy : 'excludeAll' });
         await this.validate(logInData);
 
-        const userNameAlreadyExists = await this.db.collection('users').findOne({username : logInData.username})
-        if(userNameAlreadyExists != null) throw new Error("Username already exists")
+        const userNameAlreadyExists = await this.db.collection('users').findOne({username : logInData.username});
+        if(userNameAlreadyExists != null) throw new Error("Username already exists");
         const hashedPassword = await bcrypt.hash(logInData.password,10);
         const signUpId = await this.db.collection('users').insertOne({
             username : logInData.username,

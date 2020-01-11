@@ -1,18 +1,14 @@
 extends layout.pug
 
-//-include errors
+include errors
 
 block title
     | Inscription
 
 block content
     form(method="POST")
-        //-+errors(errors)
+        +errors(errors)
         div(class="form-group")
-            if logInData
-                -var Uname = logInData.username
-            else
-                -var Uname = ''
             label(for="username") Nom d'utilisateur (seulement des lettres et des chiffre
             input(
                 type="text" 
@@ -23,7 +19,6 @@ block content
                 maxlength=20
                 pattern="[A-Za-z0-9]*"
                 required
-                value=Uname
                 placeholder="Nom d'utilisateur")
         div(class="form-group")
             label(for="password") Mot de passe (sans espace)

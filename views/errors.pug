@@ -1,0 +1,9 @@
+mixin errors(errors)
+    if errors
+        div(class="alert alert-warning" role="alert")
+            each error in errors
+                each constraint in error.constraints
+                    | #{constraint}
+                    br
+            else
+                | #{errors.message}

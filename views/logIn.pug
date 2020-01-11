@@ -1,16 +1,16 @@
 extends layout.pug
 
-//-include errors
+include errors
 
 block title
     | Connexion
 
 block content
     form(method="POST")
-        //-+errors(errors)
+        +errors(errors)
         div(class="form-group")
-            if logInData
-                -var Uname = logInData.username
+            if logInData.body
+                -var Uname = logInData.body.username
             else
                 -var Uname = ''
             label(for="username") Username
