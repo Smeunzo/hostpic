@@ -8,7 +8,7 @@ import {AuthModelImpl} from "./models/auth/AuthModelImpl";
 import session = require("express-session");
 import {AlbumController} from "./controllers/album/AlbumController";
 import {PictureModelImpl} from "./models/picture/PictureModelImpl";
-
+import connectMongoDbStore = require("connect-mongodb-session");
 
 async function start() {
      const mongoClient = await MongoClient.connect('mongodb://localhost',{useUnifiedTopology : true});
@@ -22,16 +22,22 @@ async function start() {
     const authModel : AuthModel = new AuthModelImpl(db);
     const authController = new AuthController(authModel,'/auth/login');
 
-
     const myExpress = express();
     myExpress.set('view engine','pug');
+    const MongoDbStore = connectMongoDbStore(session);
+    const storageSession = new MongoDbStore({
+        uri : 'mongodb://localhost',
+        databaseName : 'project',
+        collection: 'sessions'
+    });
 
     myExpress.use(session({
         secret :'aaaa',
         resave : false,
         saveUninitialized : false,
+        store: storageSession,
         cookie :{
-            maxAge : 1000 * 60 * 60,
+            maxAge : 1000 * 60 * 60, // session d'1 heure
             httpOnly : true
         }
     }));
