@@ -1,7 +1,8 @@
 doctype html
 html(lang="fr")
     head
-        title= title
+        title()
+            block title
         link(href='/bootstrap/bootstrap.min.css', rel='stylesheet')
         script(src='/bootstrap/bootstrap.min.js')
         link(href='/icons/material-icons.css', rel='stylesheet')
@@ -12,12 +13,12 @@ html(lang="fr")
                     div
                         a(class="navbar-brand" href="/")
                             i(class="material-icons") home
-                        span(class="navbar-brand")
-                            block title
                     if loggedUser
                         form(class="form-inline")
                             span(class="form-control mr-sm-2") #{loggedUser.username}
-                            a(href="/auth/logOut" class="btn btn-primary") #{__('Log out')}
+                            a(href="/auth/logOut" class="btn btn-primary") Log out
+                    else
+                        block connexionBtn
         main
             div(class='container')
                 br

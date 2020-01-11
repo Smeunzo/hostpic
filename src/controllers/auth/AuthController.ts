@@ -25,6 +25,16 @@ export class AuthController {
         return router;
     }
 
+
+    /**
+     * Cette méthode sera utile dans le cas ou
+     * j'ai une partie administration et que je souhaite
+     * rediriger un utilisateur non logger d'acceder à /admin
+     *
+     * @param request
+     * @param response
+     * @param next
+     */
     public async redirectUnloggedUser(request: Request, response: Response, next: NextFunction): Promise<void> {
         if (response.locals.loggedUser == null) {
             response.redirect(this.loginRoute);
@@ -45,6 +55,10 @@ export class AuthController {
     }
 
     private async getLogin(request: Request, response: Response, nextFunction: NextFunction): Promise<void> {
+        if(response.locals.loggedUser){
+            response.redirect('/');
+            return;
+        }
         response.render('logIn', {logInData: {body: undefined}});
     }
 
@@ -59,6 +73,10 @@ export class AuthController {
     }
 
     private async getSignUp(request: Request, response: Response, nextFunction: NextFunction): Promise<void> {
+        if(response.locals.loggedUser){
+            response.redirect('/');
+            return;
+        }
         response.render('signUp', {logInData: {body: undefined}});
     }
 
