@@ -1,26 +1,32 @@
+import {User} from "../auth/User";
+
 export interface PictureModel {
 
+
     /**
-     * Cette méthode ajoute un fichier dans le dossier
-     * public/pictures
-     * Il ajoute un à la base de donnée les informations
-     * @file.name @file.path @file.size et @createdAt
-     * et lie ces informations à l'utisateur qui l'a "uploadé"
+     * Extrait les données de file et créer une Picture
+     * et fini par le stocker dans la base de donnée
      *
+     * Déplace le fichier @see movePictureToUsersFolder
      *
-     * lance une exception si l'utilisateur n'est pas connecté
-     * lance une exception si le fichier est indéfini
-     *
+     * Lance une erreur si une personne non connecté tente d'envoyer une image
+     * Lance une erreur si le fichier est indéfini
+     * @param file Le fichier correspondant
+     * @param user l'utilisateur qui a "uploadé" le fichier
      */
-    uploadFile(file : any,userID : any) : Promise<void> ;
+    uploadFile(file: any, user: User): Promise<void>;
 
 
     /**
-     * Cette méthode affiche les images "uploadé"
-     * par l'utilisateur portant le numéro userID
+     * Renvoie les liens de toutes les images que l'utilisateur
+     * a "uploadé"
      *
+     * @param user l'utilisateur qui veut récupérer les
+     * photos
      *
-     * @param userId
+     * @return une promesse d'avoir un tableau contenant
+     * tous les liens vers les photos que l'utilisateur
+     * a "uploadé"
      */
-    findUsersPictures(userId : any) : Promise<string[]>;
+    findUsersPictures(user: User): Promise<string[]>;
 }

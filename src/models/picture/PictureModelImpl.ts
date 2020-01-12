@@ -14,9 +14,7 @@ export class PictureModelImpl implements PictureModel{
     }
 
     /**
-     *
-     * @param file
-     * @param user
+     *@see PictureModel/uploadFile
      */
     async uploadFile(file : any,user : User) : Promise<void> {
 
@@ -32,6 +30,9 @@ export class PictureModelImpl implements PictureModel{
         await this.db.collection('pictures').insertOne({userId: user._id, picture: picture});
     }
 
+    /**
+     *@see PictureModel/findUsersPictures
+     */
     async findUsersPictures(user: User): Promise<string[]> {
         if(user == undefined) throw Error("Impossible de récupérer les photos vous n'êtes pas connecté");
 
@@ -39,8 +40,16 @@ export class PictureModelImpl implements PictureModel{
     }
 
 
-
-
+    /**
+     * Déplace l'image se trouvant dans public/pictures
+     * vers public/pictures/username
+     *
+     * Lance une erreur si le chemin currentPath est faux / inexistant
+     * Lance une erreur si le chemin destPath est faux / inexistant
+     *
+     * @param user Correspond à l'utilisateur qui a "uploadé" la photo
+     * @param file Est le fichier correspondant
+     */
     private movePictureToUsersFolder(user : User, file : any) : void{
 
         const currentPath =  path.join('./public/pictures/',file.originalname);
