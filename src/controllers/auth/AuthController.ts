@@ -25,6 +25,48 @@ export class AuthController {
         return router;
     }
 
+    private async getLogin(request: Request, response: Response, nextFunction: NextFunction): Promise<void> {
+        if(response.locals.loggedUser){
+            response.redirect('/');
+            return;
+        }
+        response.render('logIn', {logInData: {body: undefined , token : request.csrfToken()}});
+    }
+
+    private async postLogin(request: Request, response: Response, nextFunction: NextFunction): Promise<void> {
+        if (!request.session) throw Error("Les cookies doivent être activés");
+        try {
+            request.session.userId = await this.model.getUserId(request.body);
+            response.redirect('/');
+        } catch (errors) {
+            response.render('logIn', {logInData: {body: request.body , token : request.csrfToken()}, errors: errors})
+        }
+    }
+
+    private async getSignUp(request: Request, response: Response, nextFunction: NextFunction): Promise<void> {
+        if(response.locals.loggedUser){
+            response.redirect('/');
+            return;
+        }
+        response.render('signUp', {logInData: {body: undefined , token : request.csrfToken()}});
+    }
+
+    private async postSignUp(request: Request, response: Response, nextFunction: NextFunction): Promise<void> {
+        if (!request.session) throw Error("Les cookies doivent être activés");
+        try {
+            request.session.userId = await this.model.signUp(request.body);
+            response.redirect('/')
+        } catch (errors) {
+            response.render('signUp', {logInData: {body : request.body , token : request.csrfToken()}, errors: errors})
+        }
+    }
+
+    private async getLogOut(request: Request, response: Response, nextFunction: NextFunction): Promise<void> {
+        if (!request.session) throw Error("Les cookies doivent être activés");
+        request.session.destroy(() => {
+            response.redirect('/auth/login')
+        })
+    }
 
     /**
      * Cette méthode sera utile dans le cas ou
@@ -54,50 +96,8 @@ export class AuthController {
         }
     }
 
-    private async getLogin(request: Request, response: Response, nextFunction: NextFunction): Promise<void> {
-        if(response.locals.loggedUser){
-            response.redirect('/');
-            return;
-        }
-        response.render('logIn', {logInData: {body: undefined}});
-    }
-
-    private async postLogin(request: Request, response: Response, nextFunction: NextFunction): Promise<void> {
-        if (!request.session) throw Error("Les cookies doivent être activés");
-        try {
-            request.session.userId = await this.model.getUserId(request.body);
-            response.redirect('/');
-        } catch (errors) {
-            response.render('logIn', {logInData: {body: request.body}, errors: errors})
-        }
-    }
-
-    private async getSignUp(request: Request, response: Response, nextFunction: NextFunction): Promise<void> {
-        if(response.locals.loggedUser){
-            response.redirect('/');
-            return;
-        }
-        response.render('signUp', {logInData: {body: undefined}});
-    }
-
-    private async postSignUp(request: Request, response: Response, nextFunction: NextFunction): Promise<void> {
-        if (!request.session) throw Error("Les cookies doivent être activés");
-        try {
-            request.session.userId = await this.model.signUp(request.body);
-            response.redirect('/')
-        } catch (errors) {
-            response.render('signUp', {logInData: {body : request.body}, errors: errors})
-        }
-    }
-
     private async redirectToLoginPage(request: Request, response: Response, nextFunction: NextFunction): Promise<void> {
         response.redirect(this.loginRoute);
     }
 
-    private async getLogOut(request: Request, response: Response, nextFunction: NextFunction): Promise<void> {
-        if (!request.session) throw Error("Les cookies doivent être activés");
-        request.session.destroy(() => {
-            response.redirect('/auth/login')
-        })
-    }
 }

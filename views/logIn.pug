@@ -37,6 +37,7 @@ block content
                 pattern="\\S*"
                 required
                 placeholder="Mot de passe")
+            input(type="hidden" name="_csrf" value=logInData.token)
         div(class="btn-group")
             button(type="submit" class="btn btn-success") Log in
             a(href="/auth/signUp" class="btn btn-primary") Sign up

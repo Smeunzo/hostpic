@@ -1,13 +1,17 @@
 import * as express from "express";
 import * as bodyParser from "body-parser";
+
 import {HomeController} from "./controllers/HomeController";
 import {Db, MongoClient} from "mongodb";
 import {AuthController} from "./controllers/auth/AuthController";
 import {AuthModel} from "./models/auth/AuthModel";
 import {AuthModelImpl} from "./models/auth/AuthModelImpl";
-import session = require("express-session");
 import {AlbumController} from "./controllers/album/AlbumController";
 import {PictureModelImpl} from "./models/picture/PictureModelImpl";
+
+import session = require("express-session");
+import cookieParser = require("cookie-parser");
+import csurf = require("csurf");
 import connectMongoDbStore = require("connect-mongodb-session");
 
 async function start() {
@@ -43,6 +47,17 @@ async function start() {
     }));
 
     myExpress.use(bodyParser.urlencoded({ extended: true }));
+
+    myExpress.use(cookieParser());
+    myExpress.use(csurf({
+        cookie : {
+            key: '_csrf',
+            secure: false,
+            httpOnly : true,
+            sameSite: true,
+            maxAge : 1000 * 60 * 60
+        }
+    }));
 
     myExpress.use(authController.getUser.bind(authController));
     myExpress.use('/', homeController.router());
