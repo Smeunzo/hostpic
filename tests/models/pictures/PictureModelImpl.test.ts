@@ -1,8 +1,7 @@
 import {expect} from "chai";
 import {PictureModelImpl} from "../../../src/models/picture/PictureModelImpl";
 import {Db, MongoClient, ObjectID} from "mongodb";
-import {Picture} from "../../../src/models/picture/Picture";
-import {Request, request} from "express";
+import {Request} from "express";
 import {User} from "../../../src/models/auth/User";
 import * as fs from "fs";
 import * as path from "path";
@@ -13,32 +12,34 @@ describe('PictureModelImpl', () => {
     let mongoClient: MongoClient;
     let db: Db;
 
-    let picture: Picture;
+    const fakeUser: User = {_id: new ObjectID(), username: "testAjoutFichier"};
+    let fakeFile: Request["file"] = {
+        fieldname: "image",
+        originalname: "image.png",
+        encoding: "7bit",
+        mimetype: "image/png",
+        size: 9000,
+        destination: "./public/pictures",
+        filename: "image.png",
+        path: "/public/pictures/image.png",
+        buffer: Buffer.from(new ArrayBuffer(0), 0, 0),
+        location: ""
+    };
 
+    before(() =>{
+        createFile();
+    });
 
-    before(async () => {
+    beforeEach(async () => {
         mongoClient = await MongoClient.connect('mongodb://localhost', {useUnifiedTopology: true});
         db = mongoClient.db('test');
         pictureModel = new PictureModelImpl(db);
     });
 
     describe('#uploadFile', async () => {
-        const fakeUser: User = {_id: new ObjectID(), username: "testAjoutFichier"};
         let emptyFile: Request['file'];
-
         let emptyUser: User;
-        let fakeFile: Request["file"] = {
-            fieldname: "image",
-            originalname: "image.png",
-            encoding: "7bit",
-            mimetype: "image/png",
-            size: 9000,
-            destination: "./public/pictures",
-            filename: "image.png",
-            path: "/public/pictures/image.png",
-            buffer: Buffer.from(new ArrayBuffer(0), 0, 0),
-            location: ""
-        };
+
 
         it("should throw \"Une erreur avec le fichier\"", async () => {
             try {
@@ -62,57 +63,59 @@ describe('PictureModelImpl', () => {
         });
 
         it('should add a picture for specified user', async () => {
-            try{
-                await pictureModel.uploadFile(fakeFile,fakeUser);
+            try {
+                await pictureModel.uploadFile(fakeFile, fakeUser);
                 const picture = await db.collection('pictures').findOne({
-                    userId: fakeUser._id});
+                    userId: fakeUser._id
+                });
                 expect(picture).to.not.be.null;
                 expect(picture.picture.size).to.be.equals(fakeFile.size);
-                expect(picture.picture.path).to.be.equals('/pictures/'+
-                    fakeUser.username+'/'+fakeFile.originalname);
-            }catch (errors) {
+                expect(picture.picture.path).to.be.equals('/pictures/' +
+                    fakeUser.username + '/' + fakeFile.originalname);
+            } catch (errors) {
                 console.log(errors.message)
             }
         });
 
-
-
-        beforeEach(()=>{
-            createFile();
-        });
         it("should move picture to the user's folder ", async () => {
-
-
             const oldPath = fakeFile.path;
-            const newPath = "/public/pictures/"+fakeUser.username+"/"+fakeFile.originalname;
+            const newPath = "/public/pictures/" + fakeUser.username + "/" + fakeFile.originalname;
             try {
-                await pictureModel.uploadFile(fakeFile, fakeUser);
+                setTimeout(async () => {
+                    await pictureModel.uploadFile(fakeFile, fakeUser);
+                }, 700);
                 expect(fs.existsSync(oldPath)).to.be.equals(false);
-                setTimeout(()=>{
+                setTimeout(() => {
                     expect(fs.existsSync(newPath)).to.be.true;
-                },1200);
-            }catch (e) {
+                }, 1200);
+            } catch (e) {
                 console.log(e.message);
             }
         });
-        after(() =>{
+        after(() => {
             deleteFile();
         });
 
-        function createFile() {
-            const pathToFile = path.join("./public/pictures/", "image.png");
-            fs.open(pathToFile, 'w', (err) => {
-                if (err) throw err;
-            });
-        }
-        function deleteFile(){
-            const pathToFile = path.join("./public/pictures/",fakeUser.username, "image.png");
-            fs.unlink(pathToFile,(err)=>{
-                if(err) throw err;
-            })
-        }
 
     });
+
+    describe('#findUsersPictures', async () => {
+
+        it('should return an array of all images paths', async () => {
+            createFile();
+            await pictureModel.uploadFile(fakeFile, fakeUser);
+            createFile();
+            await pictureModel.uploadFile(fakeFile, fakeUser);
+            createFile();
+            await pictureModel.uploadFile(fakeFile, fakeUser);
+            const paths: string[] = await pictureModel.findUsersPictures(fakeUser);
+            expect(paths[0]).to.be.equals("/pictures/" + fakeUser.username + "/" + fakeFile.originalname);
+            expect(paths[1]).to.be.equals("/pictures/" + fakeUser.username + "/" + fakeFile.originalname);
+            expect(paths[2]).to.be.equals("/pictures/" + fakeUser.username + "/" + fakeFile.originalname);
+            deleteFile();
+        })
+    });
+
 
     afterEach(async () => {
         await db.dropDatabase();
@@ -121,4 +124,19 @@ describe('PictureModelImpl', () => {
     after(async () => {
         await mongoClient.close()
     });
+
+
+    function createFile() {
+        const pathToFile = path.join("./public/pictures/", "image.png");
+        fs.open(pathToFile, 'w+', (err) => {
+            if (err) throw err;
+        });
+    }
+
+    function deleteFile() {
+        const pathToFile = path.join("./public/pictures/", fakeUser.username, "image.png");
+        fs.unlink(pathToFile, (err) => {
+            if (err) throw err;
+        })
+    }
 });

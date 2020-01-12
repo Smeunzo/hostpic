@@ -37,7 +37,13 @@ export class PictureModelImpl implements PictureModel{
     async findUsersPictures(user: User): Promise<string[]> {
         if(user == undefined) throw Error("Impossible de récupérer les photos vous n'êtes pas connecté");
 
-        return await this.db.collection('pictures').find({userId: user._id}).toArray();
+        const paths = await this.db.collection('pictures').find({userId: user._id}).toArray();
+        let stringPaths : string[] = [];
+
+        for(let i = 0 ; i < paths.length ; i++){
+           stringPaths[i] = paths[i].picture.path;
+        }
+        return stringPaths;
     }
 
 
