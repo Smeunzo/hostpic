@@ -4,6 +4,8 @@ import {Db, MongoClient, ObjectID} from "mongodb";
 import {Picture} from "../../../src/models/picture/Picture";
 import {Request, request} from "express";
 import {User} from "../../../src/models/auth/User";
+import * as fs from "fs";
+import * as path from "path";
 
 describe('PictureModelImpl', () => {
 
@@ -21,7 +23,7 @@ describe('PictureModelImpl', () => {
     });
 
     describe('#uploadFile', async () => {
-        const fakeUser: User = {_id: new ObjectID(), username: "test"};
+        const fakeUser: User = {_id: new ObjectID(), username: "testAjoutFichier"};
         let emptyFile: Request['file'];
 
         let emptyUser: User;
@@ -59,6 +61,41 @@ describe('PictureModelImpl', () => {
             expect.fail();
         });
 
+
+        before(()=>{
+            createFile();
+        });
+        it("should move picture to the user's folder ", async () => {
+
+
+            const oldPath = fakeFile.path;
+            const newPath = "/public/pictures/"+fakeUser.username+"/"+fakeFile.originalname;
+            try {
+                await pictureModel.uploadFile(fakeFile, fakeUser);
+                expect(fs.existsSync(oldPath)).to.be.equals(false);
+                setTimeout(()=>{
+                    expect(fs.existsSync(newPath)).to.be.true;
+                },700);
+            }catch (e) {
+                console.log(e.message);
+            }
+        });
+        after(() =>{
+            deleteFile();
+        });
+
+        function createFile() {
+            const pathToFile = path.join("./public/pictures/", "image.png");
+            fs.open(pathToFile, 'w', (err) => {
+                if (err) throw err;
+            });
+        }
+        function deleteFile(){
+            const pathToFile = path.join("./public/pictures/",fakeUser.username, "image.png");
+            fs.unlink(pathToFile,(err)=>{
+                if(err) throw err;
+            })
+        }
 
     });
 
