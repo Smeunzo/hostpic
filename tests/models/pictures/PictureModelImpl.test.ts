@@ -61,8 +61,23 @@ describe('PictureModelImpl', () => {
             expect.fail();
         });
 
+        it('should add a picture for specified user', async () => {
+            try{
+                await pictureModel.uploadFile(fakeFile,fakeUser);
+                const picture = await db.collection('pictures').findOne({
+                    userId: fakeUser._id});
+                expect(picture).to.not.be.null;
+                expect(picture.picture.size).to.be.equals(fakeFile.size);
+                expect(picture.picture.path).to.be.equals('/pictures/'+
+                    fakeUser.username+'/'+fakeFile.originalname);
+            }catch (errors) {
+                console.log(errors.message)
+            }
+        });
 
-        before(()=>{
+
+
+        beforeEach(()=>{
             createFile();
         });
         it("should move picture to the user's folder ", async () => {
@@ -75,7 +90,7 @@ describe('PictureModelImpl', () => {
                 expect(fs.existsSync(oldPath)).to.be.equals(false);
                 setTimeout(()=>{
                     expect(fs.existsSync(newPath)).to.be.true;
-                },700);
+                },1200);
             }catch (e) {
                 console.log(e.message);
             }
