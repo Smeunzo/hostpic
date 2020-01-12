@@ -1,6 +1,7 @@
 import {PictureModel} from "./PictureModel";
 import {Db} from "mongodb";
 import {Picture} from "./Picture";
+import {User} from "../auth/User";
 
 export class PictureModelImpl implements PictureModel{
 
@@ -23,8 +24,12 @@ export class PictureModelImpl implements PictureModel{
         const picture: Picture = {name: file.originalname, createdAt: Date.now(), path: file.path, size: file.size};
         await this.db.collection('pictures').insertOne({userId: userId, picture: picture});
     }
-    //TODO tourver un meilleur nommage gérér les erreurs
-    async showPictures(userId: any): Promise<string[]> {
+
+    async findUsersPictures(userId: any): Promise<string[]> {
+        if(userId == undefined) throw Error("Impossible de récupérer les photos vous n'êtes pas connecté");
+
+        const user : User | null = await this.db.collection('users').findOne({_id : userId});
+        if(user == null) throw Error("Impossible de récupérer les photos de cet utilisateur car il n'exite pas");
         return await this.db.collection('pictures').find({userId: userId}).toArray();
     }
 }

@@ -1,3 +1,5 @@
-form(enctype="multipart/form-data" method="post")
+//-Solution très sale,
+//-source https://stackoverflow.com/questions/38271815/i-get-csrf-error-when-using-enctype-multipart-form-data
+form(enctype="multipart/form-data" method="post" action="?_csrf="+token)
     input(type="file" name="image" class="custom-file-input" required)
     button(class="btn btn-success" type="submit") Upload

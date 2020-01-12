@@ -22,5 +22,5 @@ export interface PictureModel {
      *
      * @param userId
      */
-    showPictures(userId : any) : Promise<string[]>;
+    findUsersPictures(userId : any) : Promise<string[]>;
 }

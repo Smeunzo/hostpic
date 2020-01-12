@@ -4,40 +4,50 @@ import  multer = require("multer");
 
 export class AlbumController {
 
-    private picturemodel : PictureModel;
-    private upload : any;
+    private picturemodel: PictureModel;
+    private upload: any;
 
 
-    constructor(pictureModel : PictureModel) {
+    constructor(pictureModel: PictureModel) {
         this.picturemodel = pictureModel;
         this.instantiateUpload();
     }
 
-    router(): Router{
+    router(): Router {
         const router = Router();
-        router.get('/upload',this.getAddPicture.bind(this));
-        router.post('/upload',this.upload.single('image'),this.postAddPicture.bind(this));
-        router.get('/mypictures',this.getMyPictures.bind(this));
+        router.get('/upload', this.getAddPicture.bind(this));
+        router.post('/upload', this.upload.single('image'), this.postAddPicture.bind(this));
+        router.get('/mypictures', this.getMyPictures.bind(this));
         return router;
     }
 
-    private getAddPicture(request : Request, response: Response,nextFunction : NextFunction ){
-        response.render('addPicForm' );
+    private getAddPicture(request: Request, response: Response, nextFunction: NextFunction) {
+
+        response.render('addPicForm', {token: request.csrfToken()});
     }
 
-    private async postAddPicture(request : Request, response: Response,nextFunction : NextFunction){
-        await this.picturemodel.uploadFile(request.file,response.locals.loggedUser._id);
-        response.redirect('/album/upload')
+    private async postAddPicture(request: Request, response: Response, nextFunction: NextFunction) {
+        try {
+            console.log(request.body._csrf);
+            await this.picturemodel.uploadFile(request.file, response.locals.loggedUser._id);
+            response.redirect('/album/mypictures')
+        } catch (errors) {
+            response.render('addPicForm', {token: request.csrfToken(), errors: errors})
+        }
     }
 
-    private async getMyPictures(request : Request, response: Response,nextFunction : NextFunction){
+    private async getMyPictures(request: Request, response: Response, nextFunction: NextFunction) {
 
-        const pictures : string[] = await this.picturemodel.showPictures(response.locals.loggedUser._id);
-        response.render('pictures',{pictures : pictures})
+        try {
+            const pictures: string[] = await this.picturemodel.findUsersPictures(response.locals.loggedUser._id);
+            response.render('pictures', {pictures: pictures})
+        }catch (errors) {
+            response.render('pictures',{errors : errors})
+        }
     }
 
 
-    private instantiateUpload(){
+    private instantiateUpload() {
         const storage = multer.diskStorage({
             destination: function (req, file, cb) {
                 cb(null, './public/pictures');
@@ -46,6 +56,6 @@ export class AlbumController {
                 cb(null, file.originalname)
             }
         });
-        this.upload = multer({storage : storage});
+        this.upload = multer({storage: storage});
     }
 }
