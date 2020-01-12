@@ -1,4 +1,5 @@
 import {User} from "../auth/User";
+import {Request} from "express";
 
 export interface PictureModel {
 
@@ -14,7 +15,7 @@ export interface PictureModel {
      * @param file Le fichier correspondant
      * @param user l'utilisateur qui a "uploadé" le fichier
      */
-    uploadFile(file: any, user: User): Promise<void>;
+    uploadFile(file: Request['file'], user: User): Promise<void>;
 
 
     /**

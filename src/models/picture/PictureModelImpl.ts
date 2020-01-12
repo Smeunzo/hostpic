@@ -4,6 +4,7 @@ import {Picture} from "./Picture";
 import {User} from "../auth/User";
 import * as fs from "fs";
 import  * as path from "path"
+import {Request } from "express";
 
 export class PictureModelImpl implements PictureModel{
 
@@ -16,7 +17,7 @@ export class PictureModelImpl implements PictureModel{
     /**
      *@see PictureModel/uploadFile
      */
-    async uploadFile(file : any,user : User) : Promise<void> {
+    async uploadFile(file : Request['file'],user : User) : Promise<void> {
 
         if (!user) throw Error("L'utilisateur n'est pas connecté");
         if (!file) throw Error("Une erreur avec le fichier");
