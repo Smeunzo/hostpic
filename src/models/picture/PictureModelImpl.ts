@@ -2,6 +2,8 @@ import {PictureModel} from "./PictureModel";
 import {Db} from "mongodb";
 import {Picture} from "./Picture";
 import {User} from "../auth/User";
+import * as fs from "fs";
+import  * as path from "path"
 
 export class PictureModelImpl implements PictureModel{
 
@@ -14,22 +16,38 @@ export class PictureModelImpl implements PictureModel{
     /**
      *
      * @param file
-     * @param userId
+     * @param user
      */
-    async uploadFile(file : any,userId : any) : Promise<void> {
-        console.log(file);
+    async uploadFile(file : any,user : User) : Promise<void> {
 
-        if (!userId) throw Error("L'utilisateur n'est pas connecté");
+        if (!user) throw Error("L'utilisateur n'est pas connecté");
         if (!file) throw Error("Une erreur avec le fichier");
-        const picture: Picture = {name: file.originalname, createdAt: Date.now(), path: file.path, size: file.size};
-        await this.db.collection('pictures').insertOne({userId: userId, picture: picture});
+        this.movePictureToUsersFolder(user,file);
+
+        const picture: Picture = {
+            name: file.originalname,
+            createdAt: Date.now(),
+            path: "/pictures/"+user.username+'/'+file.originalname ,
+            size: file.size};
+        await this.db.collection('pictures').insertOne({userId: user._id, picture: picture});
     }
 
-    async findUsersPictures(userId: any): Promise<string[]> {
-        if(userId == undefined) throw Error("Impossible de récupérer les photos vous n'êtes pas connecté");
+    async findUsersPictures(user: User): Promise<string[]> {
+        if(user == undefined) throw Error("Impossible de récupérer les photos vous n'êtes pas connecté");
 
-        const user : User | null = await this.db.collection('users').findOne({_id : userId});
-        if(user == null) throw Error("Impossible de récupérer les photos de cet utilisateur car il n'exite pas");
-        return await this.db.collection('pictures').find({userId: userId}).toArray();
+        return await this.db.collection('pictures').find({userId: user._id}).toArray();
+    }
+
+
+
+
+    private movePictureToUsersFolder(user : User, file : any) : void{
+
+        const currentPath =  path.join('./public/pictures/',file.originalname);
+        const destPath = path.join('./public/pictures/',user.username,file.originalname);
+
+        fs.rename(currentPath,destPath,(err) =>{
+            if(err) throw Error(err.message + "déplacement de fichier impossible");
+        });
     }
 }

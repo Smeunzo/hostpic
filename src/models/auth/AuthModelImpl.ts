@@ -5,6 +5,7 @@ import {validate} from "class-validator";
 import {LogInData} from "./LogInData";
 import {AuthModel} from "./AuthModel";
 import {plainToClass} from "class-transformer";
+import * as fs from "fs";
 
 export class AuthModelImpl implements AuthModel {
     private db : Db;
@@ -33,6 +34,7 @@ export class AuthModelImpl implements AuthModel {
             password : hashedPassword
         });
 
+        this.createUsersPicturesDirectory(logInData.username);
         return signUpId.insertedId;
     }
 
@@ -51,6 +53,7 @@ export class AuthModelImpl implements AuthModel {
         if(!isPasswordCorrect){
             throw new Error("Username or password are not correct")
         }
+
 
         return userInformations._id;
     }
@@ -80,5 +83,21 @@ export class AuthModelImpl implements AuthModel {
         const errors = await validate(object);
         if (errors.length == 0) return;
         throw errors;
+    }
+
+    /**
+     *Créer le dossier où sera contenu toutes les images
+     * de l'utilisateur
+     *
+     * @param username
+     */
+    private createUsersPicturesDirectory(username : string) {
+        if(!fs.existsSync('./public/pictures/'+username)){
+            fs.mkdir('./public/pictures/' + username , (err) => {
+                if (err) {
+                    throw Error(err.message+" Impossible de créer le sous-dossier");
+                }
+            })
+        }
     }
 }

@@ -28,8 +28,7 @@ export class AlbumController {
 
     private async postAddPicture(request: Request, response: Response, nextFunction: NextFunction) {
         try {
-            console.log(request.body._csrf);
-            await this.picturemodel.uploadFile(request.file, response.locals.loggedUser._id);
+            await this.picturemodel.uploadFile(request.file, response.locals.loggedUser);
             response.redirect('/album/mypictures')
         } catch (errors) {
             response.render('addPicForm', {token: request.csrfToken(), errors: errors})
@@ -39,7 +38,7 @@ export class AlbumController {
     private async getMyPictures(request: Request, response: Response, nextFunction: NextFunction) {
 
         try {
-            const pictures: string[] = await this.picturemodel.findUsersPictures(response.locals.loggedUser._id);
+            const pictures: string[] = await this.picturemodel.findUsersPictures(response.locals.loggedUser);
             response.render('pictures', {pictures: pictures})
         }catch (errors) {
             response.render('pictures',{errors : errors})
