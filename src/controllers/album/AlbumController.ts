@@ -1,6 +1,7 @@
 import {NextFunction, Request, Response, Router} from "express";
 import {PictureModel} from "../../models/picture/PictureModel";
 import  multer = require("multer");
+import {AuthController} from "../auth/AuthController";
 
 export class AlbumController {
 
@@ -13,13 +14,17 @@ export class AlbumController {
         this.instantiateUpload();
     }
 
-    router(): Router {
+    router(authController : AuthController): Router {
         const router = Router();
+        router.use(authController.redirectUnLoggedUser.bind(authController));
+        router.get('/',this.redirectToUploadPage.bind(this));
         router.get('/upload', this.getAddPicture.bind(this));
         router.post('/upload', this.upload.single('image'), this.postAddPicture.bind(this));
+        router.post('/delete/:id',this.postDelete.bind(this));
         router.get('/mypictures', this.getMyPictures.bind(this));
         return router;
     }
+
 
     private getAddPicture(request: Request, response: Response, nextFunction: NextFunction) {
 
@@ -28,7 +33,8 @@ export class AlbumController {
 
     private async postAddPicture(request: Request, response: Response, nextFunction: NextFunction) {
         try {
-            await this.picturemodel.uploadFile(request.file, response.locals.loggedUser);
+            await this.picturemodel.uploadFileToDB(request.file,response.locals.loggedUser);
+            this.picturemodel.moveFileToFolder(request.file,response.locals.loggedUser);
             response.redirect('/album/mypictures')
         } catch (errors) {
             response.render('addPicForm', {token: request.csrfToken(), errors: errors})
@@ -38,8 +44,8 @@ export class AlbumController {
     private async getMyPictures(request: Request, response: Response, nextFunction: NextFunction) {
 
         try {
-            const pictures: string[] = await this.picturemodel.findUsersPictures(response.locals.loggedUser);
-            response.render('pictures', {pictures: pictures})
+            const photo: any[] = await this.picturemodel.findUsersPictures(response.locals.loggedUser);
+            response.render('pictures', {pictures: photo , token : request.csrfToken()})
         }catch (errors) {
             response.render('pictures',{errors : errors})
         }
@@ -56,5 +62,19 @@ export class AlbumController {
             }
         });
         this.upload = multer({storage: storage});
+    }
+
+    private async postDelete(request: Request, response: Response, nextFunction: NextFunction){
+        try {
+           await this.picturemodel.supprimer(request.params.id);
+           response.redirect('/album/mypictures')
+        }catch (errors) {
+            const photo: any[] = await this.picturemodel.findUsersPictures(response.locals.loggedUser);
+            response.render('pictures',{errors : errors,pictures : photo , token : request.csrfToken()})
+        }
+    }
+
+    private redirectToUploadPage(request: Request, response: Response, nextFunction: NextFunction){
+        response.redirect('/album/upload');
     }
 }

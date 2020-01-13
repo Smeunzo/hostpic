@@ -24,7 +24,7 @@ describe('AuthModelImpl', () => {
     }
 
     before(async () => {
-        mongoClient = await MongoClient.connect('mongodb://localhost', { useNewUrlParser: true } );
+        mongoClient = await MongoClient.connect('mongodb://localhost', { useUnifiedTopology: true } );
         db = mongoClient.db('test');
         authModel = new AuthModelImpl(db);
     });

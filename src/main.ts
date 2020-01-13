@@ -24,7 +24,7 @@ async function start() {
     const albumController = new AlbumController(pictureModel);
 
     const authModel : AuthModel = new AuthModelImpl(db);
-    const authController = new AuthController(authModel,'/auth/login');
+    const authController = new AuthController(authModel,'/album','/auth');
 
     const myExpress = express();
     myExpress.set('view engine','pug');
@@ -62,7 +62,7 @@ async function start() {
     myExpress.use(authController.getUser.bind(authController));
     myExpress.use('/', homeController.router());
     myExpress.use('/auth',authController.router());
-    myExpress.use('/album',albumController.router());
+    myExpress.use('/album',albumController.router(authController));
     myExpress.use(express.static('public'));
     myExpress.listen(4200, function () {
         console.log('Go to http://localhost:4200')

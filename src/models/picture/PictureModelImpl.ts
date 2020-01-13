@@ -1,51 +1,87 @@
 import {PictureModel} from "./PictureModel";
-import {Db} from "mongodb";
+import {Db, ObjectId} from "mongodb";
 import {Picture} from "./Picture";
 import {User} from "../auth/User";
 import * as fs from "fs";
-import  * as path from "path"
-import {Request } from "express";
+import * as path from "path"
+import {Request} from "express";
 
-export class PictureModelImpl implements PictureModel{
+export class PictureModelImpl implements PictureModel {
 
 
-    private  db : Db ;
-    constructor(db : Db) {
+    private db: Db;
+
+    constructor(db: Db) {
         this.db = db;
     }
 
     /**
      *@see PictureModel/uploadFile
+     * @deprecated
      */
-    async uploadFile(file : Request['file'],user : User) : Promise<void> {
+    async uploadFile(file: Request['file'], user: User): Promise<void> {
 
         if (!user) throw Error("L'utilisateur n'est pas connecté");
         if (!file) throw Error("Une erreur avec le fichier");
-        this.movePictureToUsersFolder(user,file);
+        this.movePictureToUsersFolder(user, file);
 
         const picture: Picture = {
             name: file.originalname,
             createdAt: Date.now(),
-            path: "/pictures/"+user.username+'/'+file.originalname ,
-            size: file.size};
+            path: "/pictures/" + user.username + '/' + file.originalname,
+            size: file.size
+        };
         await this.db.collection('pictures').insertOne({userId: user._id, picture: picture});
+    }
+
+    moveFileToFolder(file: Request['file'], user: User): void {
+        if (!user) throw Error("L'utilisateur n'est pas connecté");
+        if (!file) throw Error("Une erreur avec le fichier");
+        this.movePictureToUsersFolder(user, file);
+    }
+
+    async uploadFileToDB(file: Request['file'], user: User): Promise<void> {
+
+        if (!user) throw Error("Envoie du fichier impossible, l'utilisateur n'est pas connecté");
+        if (!file) throw Error("Envoie du fichier impossible, il y a une erreur avec le fichier");
+
+        const picture: Picture = {
+            name: file.originalname,
+            createdAt: Date.now(),
+            path: "/pictures/" + user.username + '/' + file.originalname,
+            size: file.size
+        };
+       const result =  await this.db.collection('pictures').insertOne({userId: user._id, picture: picture});
+       return  result.insertedId;
     }
 
     /**
      *@see PictureModel/findUsersPictures
      */
-    async findUsersPictures(user: User): Promise<string[]> {
-        if(user == undefined) throw Error("Impossible de récupérer les photos vous n'êtes pas connecté");
+    async findUsersPictures(user: User): Promise<any[]> {
+        if (user == undefined) throw Error("Impossible de récupérer les photos vous n'êtes pas connecté");
 
-        const paths = await this.db.collection('pictures').find({userId: user._id}).toArray();
-        let stringPaths : string[] = [];
-
-        for(let i = 0 ; i < paths.length ; i++){
-           stringPaths[i] = paths[i].picture.path;
-        }
-        return stringPaths;
+        return await this.db.collection('pictures').find({userId: user._id}).toArray();
     }
 
+    /**
+     * Supprime une photo de la base de donnée
+     * et du dossier utilisateur
+     * @param pictureId
+     */
+    async supprimer(pictureId: any): Promise<void> {
+        const picture: any | null = await this.db.collection('pictures').findOneAndDelete({_id: new ObjectId(pictureId)});
+
+        if (!picture.value) throw Error("La photo n'existe pas");
+        const userId = picture.value.userId;
+        const user: User | null = await this.db.collection('users').findOne({_id: userId});
+        if (!user) throw Error("l'utilisateur n'exista pas");
+
+
+        fs.unlink('./public/pictures/' + user.username + "/" + picture.value.picture.name, (err) => {
+            if (err) throw err
+        })
+    }
 
     /**
      * Déplace l'image se trouvant dans public/pictures
@@ -57,13 +93,13 @@ export class PictureModelImpl implements PictureModel{
      * @param user Correspond à l'utilisateur qui a "uploadé" la photo
      * @param file Est le fichier correspondant
      */
-    private movePictureToUsersFolder(user : User, file : any) : void{
+    private movePictureToUsersFolder(user: User, file: any): void {
 
-        const currentPath =  path.join('./public/pictures/',file.originalname);
-        const destPath = path.join('./public/pictures/',user.username,file.originalname);
+        const currentPath = path.join('./public/pictures/', file.originalname);
+        const destPath = path.join('./public/pictures/', user.username, file.originalname);
 
-        fs.rename(currentPath,destPath,(err) =>{
-            if(err) throw Error(err.message + "déplacement de fichier impossible");
+        fs.rename(currentPath, destPath, (err) => {
+            if (err) throw Error(err.message + "déplacement de fichier impossible");
         });
     }
 }

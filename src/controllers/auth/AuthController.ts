@@ -7,10 +7,12 @@ export class AuthController {
     private model: AuthModel;
 
     private readonly loginRoute: string;
+    private readonly authUrl: string;
 
-    constructor(authModel: AuthModel, loginRoute: string) {
+    constructor(authModel: AuthModel, logInRedirection: string,authUrl : string) {
         this.model = authModel;
-        this.loginRoute = loginRoute;
+        this.loginRoute = logInRedirection;
+        this.authUrl = authUrl;
     }
 
     router(): Router {
@@ -21,7 +23,6 @@ export class AuthController {
         router.get('/signUp', this.getSignUp.bind(this));
         router.post('/signUp', this.postSignUp.bind(this));
         router.get('/logout', this.getLogOut.bind(this));
-        router.use(this.redirectToLoginPage.bind(this));
         return router;
     }
 
@@ -29,7 +30,7 @@ export class AuthController {
         if(response.locals.loggedUser){
             response.redirect('/');
             return;
-        }
+        }else
         response.render('logIn', {logInData: {body: undefined , token : request.csrfToken()}});
     }
 
@@ -37,7 +38,7 @@ export class AuthController {
         if (!request.session) throw Error("Les cookies doivent être activés");
         try {
             request.session.userId = await this.model.getUserId(request.body);
-            response.redirect('/');
+            response.redirect(this.loginRoute);
         } catch (errors) {
             response.render('logIn', {logInData: {body: request.body , token : request.csrfToken()}, errors: errors})
         }
@@ -55,7 +56,7 @@ export class AuthController {
         if (!request.session) throw Error("Les cookies doivent être activés");
         try {
             request.session.userId = await this.model.signUp(request.body);
-            response.redirect('/')
+            response.redirect(this.loginRoute)
         } catch (errors) {
             response.render('signUp', {logInData: {body : request.body , token : request.csrfToken()}, errors: errors})
         }
@@ -64,7 +65,7 @@ export class AuthController {
     private async getLogOut(request: Request, response: Response, nextFunction: NextFunction): Promise<void> {
         if (!request.session) throw Error("Les cookies doivent être activés");
         request.session.destroy(() => {
-            response.redirect('/auth/login')
+            response.redirect('/')
         })
     }
 
@@ -77,9 +78,9 @@ export class AuthController {
      * @param response
      * @param next
      */
-    public async redirectUnloggedUser(request: Request, response: Response, next: NextFunction): Promise<void> {
+    public async redirectUnLoggedUser(request: Request, response: Response, next: NextFunction): Promise<void> {
         if (response.locals.loggedUser == null) {
-            response.redirect(this.loginRoute);
+            response.redirect(this.authUrl+'/login');
             return;
         }
         next();
@@ -97,7 +98,7 @@ export class AuthController {
     }
 
     private async redirectToLoginPage(request: Request, response: Response, nextFunction: NextFunction): Promise<void> {
-        response.redirect(this.loginRoute);
+        response.redirect(this.authUrl+'/login');
     }
 
 }
