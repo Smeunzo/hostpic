@@ -5,12 +5,12 @@ import {AuthController} from "../auth/AuthController";
 
 export class AlbumController {
 
-    private picturemodel: PictureModel;
+    private pictureModel: PictureModel;
     private upload: any;
 
 
     constructor(pictureModel: PictureModel) {
-        this.picturemodel = pictureModel;
+        this.pictureModel = pictureModel;
         this.instantiateUpload();
     }
 
@@ -33,8 +33,8 @@ export class AlbumController {
 
     private async postAddPicture(request: Request, response: Response, nextFunction: NextFunction) {
         try {
-            await this.picturemodel.uploadFileToDB(request.file,response.locals.loggedUser);
-            this.picturemodel.moveFileToFolder(request.file,response.locals.loggedUser);
+            await this.pictureModel.uploadFileToDB(request.file,response.locals.loggedUser);
+            this.pictureModel.moveFileToFolder(request.file,response.locals.loggedUser);
             response.redirect('/album/mypictures')
         } catch (errors) {
             response.render('addPicForm', {token: request.csrfToken(), errors: errors})
@@ -44,7 +44,7 @@ export class AlbumController {
     private async getMyPictures(request: Request, response: Response, nextFunction: NextFunction) {
 
         try {
-            const photo: any[] = await this.picturemodel.findUsersPictures(response.locals.loggedUser);
+            const photo: any[] = await this.pictureModel.findUsersPictures(response.locals.loggedUser._id);
             response.render('pictures', {pictures: photo , token : request.csrfToken()})
         }catch (errors) {
             response.render('pictures',{errors : errors})
@@ -66,10 +66,11 @@ export class AlbumController {
 
     private async postDelete(request: Request, response: Response, nextFunction: NextFunction){
         try {
-           await this.picturemodel.supprimer(request.params.id);
+           const deletedPicture = await this.pictureModel.deleteFileFromDB(request.params.id,response.locals.loggedUser._id);
+           await this.pictureModel.deleteFileFromFolder(deletedPicture,response.locals.loggedUser);
            response.redirect('/album/mypictures')
         }catch (errors) {
-            const photo: any[] = await this.picturemodel.findUsersPictures(response.locals.loggedUser);
+            const photo: any[] = await this.pictureModel.findUsersPictures(response.locals.loggedUser);
             response.render('pictures',{errors : errors,pictures : photo , token : request.csrfToken()})
         }
     }

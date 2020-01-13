@@ -59,6 +59,13 @@ export interface PictureModel {
 
     /**
      * Supprime une image sélectionnée
+     * @deprecated
      */
     supprimer(id : any) : Promise<void>;
+
+
+    deleteFileFromDB(pictureId: any,userId :any ): Promise<any>;
+
+
+    deleteFileFromFolder(pictureInformations: any, user: User) : Promise<void>;
 }

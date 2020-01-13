@@ -51,22 +51,23 @@ export class PictureModelImpl implements PictureModel {
             path: "/pictures/" + user.username + '/' + file.originalname,
             size: file.size
         };
-       const result =  await this.db.collection('pictures').insertOne({userId: user._id, picture: picture});
-       return  result.insertedId;
+        const result = await this.db.collection('pictures').insertOne({userId: user._id, picture: picture});
+        return result.insertedId;
     }
 
     /**
      *@see PictureModel/findUsersPictures
      */
-    async findUsersPictures(user: User): Promise<any[]> {
-        if (user == undefined) throw Error("Impossible de récupérer les photos vous n'êtes pas connecté");
+    async findUsersPictures(userId: any): Promise<any[]> {
+        if (userId == undefined) throw Error("Impossible de récupérer les photos vous n'êtes pas connecté");
 
-        return await this.db.collection('pictures').find({userId: user._id}).toArray();
+        return await this.db.collection('pictures').find({userId: userId}).toArray();
     }
 
     /**
      * Supprime une photo de la base de donnée
      * et du dossier utilisateur
+     *@deprecated
      * @param pictureId
      */
     async supprimer(pictureId: any): Promise<void> {
@@ -81,6 +82,38 @@ export class PictureModelImpl implements PictureModel {
         fs.unlink('./public/pictures/' + user.username + "/" + picture.value.picture.name, (err) => {
             if (err) throw err
         })
+    }
+
+    /**
+     *
+     * @param pictureId
+     * @param userId
+     *
+     * @return un objet du type { lastErrorObject : {} , value :{} , ok : {}}
+     */
+    async deleteFileFromDB(pictureId: any, userId: any): Promise<any> {
+        return (await (this.db.collection('pictures').findOneAndDelete({_id: new ObjectId(pictureId)}))).value;
+    }
+
+    async deleteFileFromFolder(pictureInformations: any, user: User): Promise<void> {
+        if (!pictureInformations.picture || !pictureInformations.userId || !pictureInformations._id) throw Error("Impossible de supprimer une image d'un dossier");
+
+
+        const pictures: any[] = await this.db.collection('pictures').find({userId: new ObjectId(user._id)}).toArray();
+
+        let existInDB = 0;
+        for (let picture of pictures) {
+            if (picture.picture.name == pictureInformations.picture.name) {
+                existInDB = 1;
+                break;
+            }
+        }
+
+        if (existInDB == 0) {
+            fs.unlink('./public/pictures/' + user.username + "/" + pictureInformations.picture.name, (err) => {
+                if (err) throw err
+            })
+        }
     }
 
     /**
