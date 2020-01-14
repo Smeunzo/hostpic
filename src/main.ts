@@ -13,6 +13,9 @@ import session = require("express-session");
 import cookieParser = require("cookie-parser");
 import csurf = require("csurf");
 import connectMongoDbStore = require("connect-mongodb-session");
+import {AdminModel} from "./models/admin/AdminModel";
+import {AdminModelImpl} from "./models/admin/AdminModelImpl";
+import {AdminController} from "./controllers/admin/AdminController";
 
 async function start() {
      const mongoClient = await MongoClient.connect('mongodb://localhost',{useUnifiedTopology : true});
@@ -25,6 +28,9 @@ async function start() {
 
     const authModel : AuthModel = new AuthModelImpl(db);
     const authController = new AuthController(authModel,'/album','/auth');
+
+    const adminModel : AdminModel = new AdminModelImpl(db);
+    const adminController  =  new AdminController(adminModel);
 
     const myExpress = express();
     myExpress.set('view engine','pug');
@@ -63,6 +69,7 @@ async function start() {
     myExpress.use('/', homeController.router());
     myExpress.use('/auth',authController.router());
     myExpress.use('/album',albumController.router(authController));
+    myExpress.use('/admin',adminController.router(authController));
     myExpress.use(express.static('public'));
     myExpress.listen(4200, function () {
         console.log('Go to http://localhost:4200')

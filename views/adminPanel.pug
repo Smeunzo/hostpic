@@ -1,0 +1,20 @@
+extends layout
+
+block title
+    | Gestion administrateur
+
+block content
+    div(class="container")
+        table(class="table table-striped col-sm-6")
+            thead
+                tr
+                    th  identifiant utilisateur
+                    th  nom d'utilisateur
+                    th  action
+            tbody
+                each row in table
+                    tr
+                        td #{row._id}
+                        td #{row.username}
+                        td
+                            button(type="submit" class="btn btn-danger") Supprimer
