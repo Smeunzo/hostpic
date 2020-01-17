@@ -28,7 +28,7 @@ export class AdminController{
         try{
             const deletedUser : any = await this.adminModel.deleteUserFromDb(request.params.id);
             await this.adminModel.deleteUsersFolder(deletedUser);
-            response.redirect('/userControl');
+            response.redirect('/admin/userControl');
         }catch (errors) {
             const table = await this.adminModel.getUsers();
             response.render('adminPanel', {table : table , token : request.csrfToken(), errors : errors})

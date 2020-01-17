@@ -17,6 +17,5 @@ block content
                 tr
                     td #{row.username}
                     td
-                        +deletionForm('/admin/userControl/delete/'+row._id,token)
                         form(class="form-inline" method="post" action="/admin/userControl/delete/"+row._id)
-                            button(type="submit" name="_csrf") Supprimer
+                            button(type="submit" name="_csrf" value=token class="btn btn-danger") Supprimer

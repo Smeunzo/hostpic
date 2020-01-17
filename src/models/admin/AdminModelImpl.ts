@@ -1,6 +1,5 @@
 import {AdminModel} from "./AdminModel";
 import {Db, ObjectId} from "mongodb";
-import {User} from "../auth/User";
 import * as assert from "assert";
 import * as fs from "fs";
 import * as path from "path"
@@ -24,27 +23,22 @@ export class AdminModelImpl implements AdminModel {
         assert(userId != undefined, "Nom d'utilisateur indéfini");
         const deletedUser = await this.db.collection('users').findOneAndDelete({_id: new ObjectId(userId)});
         if (deletedUser.value == null) throw Error("Impossible de supprimer cet utilisateur");
-        return deletedUser;
+        return deletedUser.value;
     }
 
     async deleteUsersFolder(deletedUser: any): Promise<void> {
         assert(deletedUser != undefined, "L'utilisateur n'a pas été correctement supprimé de la base de donnée");
         const pathToDir  = path.join('./public/pictures/',deletedUser.username);
 
-        const dir = await fs.promises.opendir(pathToDir);
-        for await (const dirent of dir) {
-            const pathToFile = pathToDir.toString()+'/'+dirent.name;
-            fs.unlink(pathToFile, (err) => {
-                if(err) throw err;
-            });
+        if(!fs.existsSync(pathToDir)) throw Error("Le dossier n'existe pas ");
+
+        const dirEntries = await fs.promises.readdir(pathToDir);
+
+        for(let i = 0 ; i < dirEntries.length ; i++){
+            await fs.promises.unlink(pathToDir+'/'+dirEntries[i]);
         }
-        await dir.close();
 
-        const dirLength = (await fs.promises.readdir(pathToDir)).length;
-        console.log(dirLength);
-        assert(dirLength == 0);
-
-        fs.rmdirSync(pathToDir,);
+        await fs.promises.rmdir(pathToDir);
     }
 
 }
