@@ -4,7 +4,7 @@ block content
     div(class="row")
         div(class="col-md-4")
             each picture in pictures
+                img(src=picture.picture.path)
                 form(method="post" action="/album/delete/"+picture._id)
-                    img(src=picture.picture.path)
-                    input(type="hidden" name="_csrf" value=token)
                     button(type="submit" class="btn btn-danger") Supprimer
+                    input(type="hidden" name="_csrf" value=token)

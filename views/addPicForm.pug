@@ -1,5 +1,20 @@
 //-Solution très sale,
 //-source https://stackoverflow.com/questions/38271815/i-get-csrf-error-when-using-enctype-multipart-form-data
-form(enctype="multipart/form-data" method="post" action="?_csrf="+token)
-    input(type="file" name="image" class="custom-file-input" required)
-    button(class="btn btn-success" type="submit") Upload
+extends layout
+
+block content
+    form(enctype="multipart/form-data" method="post" action="?_csrf=" + token class="form-inline")
+        div(class="col-sm-6")
+            div(class="input-group")
+                div(class="custom-file")
+                    label(class="custom-file-label" for="inputGroupeFile04") Choisissez un fichier
+                    input(type="file" name="image"  id="inputGroupeFile04" class="custom-file-input" required)
+                div(class="input-group-append")
+                    button(class="btn btn-outline-secondary" type="submit") Upload
+
+block script
+    script.
+        $('input[type="file"]').change(function (e) {
+            const fileName = e.target.files[0].name;
+            $('.custom-file-label').html(fileName);
+        });

@@ -42,7 +42,8 @@ describe('PictureModelImpl', () => {
             if (err) throw err;
         })
     }
-    function sleep(ms : number) {
+
+    function sleep(ms: number) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
@@ -93,12 +94,10 @@ describe('PictureModelImpl', () => {
             }
         });
 
-
-        // ce test ne passera pas surement par contrainte technique ?
-        it("should move picture to the user's folder ",  async () => {
+        it("should move picture to the user's folder ", async () => {
             createFile();
-            sleep(300);
-            const oldPath = "./"+fakeFile.path;
+            await sleep(300);
+            const oldPath = "./" + fakeFile.path;
             const newPath = "./public/pictures/" + fakeUser.username + "/" + fakeFile.originalname;
             try {
                 expect(fs.existsSync(oldPath)).to.be.true;
@@ -117,32 +116,34 @@ describe('PictureModelImpl', () => {
 
     });
 
-     describe('#findUsersPictures', async () => {
+    //Doit nécessairement avoir un dossier pour l'uilisateur test créer au préalable
+    // car la méthode createUsersPictureDirectory est privée
+    describe('#findUsersPictures', async () => {
 
-         it('should return an array of all images paths', async () => {
-             await creatAndMoveFile();
-             await creatAndMoveFile();
-             await creatAndMoveFile();
+        it('should return an array of all images paths', async () => {
+            await creatAndMoveFile();
+            await creatAndMoveFile();
+            await creatAndMoveFile();
 
-             const paths: any[] = await pictureModel.findUsersPictures(fakeUser);
-             expect(paths[0].picture.path).to.be.equals("/pictures/" + fakeUser.username + "/" + fakeFile.originalname);
-             expect(paths[1].picture.path).to.be.equals("/pictures/" + fakeUser.username + "/" + fakeFile.originalname);
-             expect(paths[2].picture.path).to.be.equals("/pictures/" + fakeUser.username + "/" + fakeFile.originalname);
-             deleteFile();
-         });
+            const paths: any[] = await pictureModel.findUsersPictures(fakeUser._id);
+            expect(paths[0].picture.path).to.be.equals("/pictures/" + fakeUser.username + "/" + fakeFile.originalname);
+            expect(paths[1].picture.path).to.be.equals("/pictures/" + fakeUser.username + "/" + fakeFile.originalname);
+            expect(paths[2].picture.path).to.be.equals("/pictures/" + fakeUser.username + "/" + fakeFile.originalname);
+            deleteFile();
+        });
 
-         async function creatAndMoveFile(){
-             createFile();
-             await sleep(300);
-             await pictureModel.uploadFileToDB(fakeFile, fakeUser);
-             pictureModel.moveFileToFolder(fakeFile,fakeUser);
-         }
-     });
+        async function creatAndMoveFile() {
+            createFile();
+            await sleep(300);
+            await pictureModel.uploadFileToDB(fakeFile, fakeUser);
+            pictureModel.moveFileToFolder(fakeFile, fakeUser);
+        }
+    });
 
 
-     afterEach(async () => {
-         await db.dropDatabase();
-     });
+    afterEach(async () => {
+        await db.dropDatabase();
+    });
 
 
     after(async () => {
