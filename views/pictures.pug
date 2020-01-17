@@ -1,10 +1,15 @@
 extends layout
 
+block title
+    | Photos
 block content
+    h1  Mes photos
     div(class="row")
-        div(class="col-md-4")
-            each picture in pictures
-                img(src=picture.picture.path)
-                form(method="post" action="/album/delete/"+picture._id)
-                    button(type="submit" class="btn btn-danger") Supprimer
-                    input(type="hidden" name="_csrf" value=token)
+        each picture in pictures
+            div(class="col-sm-4 mb-4 ")
+                div(class="card" style="width: 18rem")
+                    img(src=picture.picture.path class="card-img-top" )
+                    div(class="card-body")
+                        form(method="post" action="/album/delete/" + picture._id)
+                            button(type="submit" class="btn btn-danger") Supprimer
+                            input(type="hidden" name="_csrf" value=token)

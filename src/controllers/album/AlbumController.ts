@@ -28,7 +28,7 @@ export class AlbumController {
 
     private getAddPicture(request: Request, response: Response, nextFunction: NextFunction) {
 
-        response.render('addPicForm', {token: request.csrfToken()});
+        response.render('upload', {token: request.csrfToken()});
     }
 
     private async postAddPicture(request: Request, response: Response, nextFunction: NextFunction) {
@@ -37,7 +37,7 @@ export class AlbumController {
             this.pictureModel.moveFileToFolder(request.file,response.locals.loggedUser);
             response.redirect('/album/mypictures')
         } catch (errors) {
-            response.render('addPicForm', {token: request.csrfToken(), errors: errors})
+            response.render('upload', {token: request.csrfToken(), errors: errors})
         }
     }
 
