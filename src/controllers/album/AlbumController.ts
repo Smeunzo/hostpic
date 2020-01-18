@@ -2,6 +2,7 @@ import {NextFunction, Request, Response, Router} from "express";
 import {PictureModel} from "../../models/picture/PictureModel";
 import  multer = require("multer");
 import {AuthController} from "../auth/AuthController";
+import {ObjectId} from "mongodb";
 
 export class AlbumController {
 
@@ -14,13 +15,13 @@ export class AlbumController {
         this.instantiateUpload();
     }
 
-    router(authController : AuthController): Router {
+    router(authController: AuthController): Router {
         const router = Router();
         router.use(authController.redirectUnLoggedUser.bind(authController));
-        router.get('/',this.redirectToUploadPage.bind(this));
+        router.get('/', this.redirectToUploadPage.bind(this));
         router.get('/upload', this.getAddPicture.bind(this));
         router.post('/upload', this.upload.single('image'), this.postAddPicture.bind(this));
-        router.post('/delete/:id',this.postDelete.bind(this));
+        router.post('/delete/:id', this.postDelete.bind(this));
         router.get('/mypictures', this.getMyPictures.bind(this));
         return router;
     }
@@ -33,8 +34,8 @@ export class AlbumController {
 
     private async postAddPicture(request: Request, response: Response, nextFunction: NextFunction) {
         try {
-            await this.pictureModel.uploadFileToDB(request.file,response.locals.loggedUser);
-            this.pictureModel.moveFileToFolder(request.file,response.locals.loggedUser);
+            await this.pictureModel.uploadPicturesInformationsToDb(request.file, response.locals.loggedUser);
+            this.pictureModel.moveFileToFolder(request.file, response.locals.loggedUser);
             response.redirect('/album/mypictures')
         } catch (errors) {
             response.render('upload', {token: request.csrfToken(), errors: errors})
@@ -45,10 +46,24 @@ export class AlbumController {
 
         try {
             const photo: any[] = await this.pictureModel.findUsersPictures(response.locals.loggedUser._id);
-            response.render('pictures', {pictures: photo , token : request.csrfToken()})
-        }catch (errors) {
-            response.render('pictures',{errors : errors})
+            response.render('pictures', {pictures: photo, token: request.csrfToken()})
+        } catch (errors) {
+            response.render('pictures', {errors: errors})
         }
+    }
+
+    private async postDelete(request: Request, response: Response, nextFunction: NextFunction) {
+        try {
+            await this.pictureModel.deleteFile(new ObjectId(request.params.id), response.locals.loggedUser);
+            response.redirect('/album/mypictures')
+        } catch (errors) {
+            const photo: any[] = await this.pictureModel.findUsersPictures(response.locals.loggedUser);
+            response.render('pictures', {errors: errors, pictures: photo, token: request.csrfToken()})
+        }
+    }
+
+    private redirectToUploadPage(request: Request, response: Response, nextFunction: NextFunction) {
+        response.redirect('/album/upload');
     }
 
 
@@ -62,20 +77,5 @@ export class AlbumController {
             }
         });
         this.upload = multer({storage: storage});
-    }
-
-    private async postDelete(request: Request, response: Response, nextFunction: NextFunction){
-        try {
-           const deletedPicture = await this.pictureModel.deleteFileFromDB(request.params.id,response.locals.loggedUser._id);
-           await this.pictureModel.deleteFileFromFolder(deletedPicture,response.locals.loggedUser);
-           response.redirect('/album/mypictures')
-        }catch (errors) {
-            const photo: any[] = await this.pictureModel.findUsersPictures(response.locals.loggedUser);
-            response.render('pictures',{errors : errors,pictures : photo , token : request.csrfToken()})
-        }
-    }
-
-    private redirectToUploadPage(request: Request, response: Response, nextFunction: NextFunction){
-        response.redirect('/album/upload');
     }
 }
