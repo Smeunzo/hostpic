@@ -40,6 +40,7 @@ export class AdminModelImpl implements AdminModel {
         return {_id: deletedUser.value._id, username: deletedUser.value.username};
     }
 
+    // noinspection JSMethodCanBeStatic
     /**
      * supprime le dossier photo (et toutes les photos) d'un utilisateur
      * précédemment supprimé

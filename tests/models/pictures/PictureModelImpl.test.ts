@@ -162,6 +162,7 @@ describe('PictureModelImpl', () => {
             expect(paths[0].picture.path).to.be.equals("/pictures/" + fakeUser.username + "/" + fakeFile.originalname);
             expect(paths[1].picture.path).to.be.equals("/pictures/" + fakeUser.username + "/" + fakeFile.originalname);
             expect(paths[2].picture.path).to.be.equals("/pictures/" + fakeUser.username + "/" + fakeFile.originalname);
+            deleteFile();
         });
 
         async function createAndMoveFile() {

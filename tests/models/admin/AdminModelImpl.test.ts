@@ -3,6 +3,8 @@ import {expect} from "chai";
 import {Db, MongoClient} from "mongodb";
 import {AdminModel} from "../../../src/models/admin/AdminModel";
 import {AdminModelImpl} from "../../../src/models/admin/AdminModelImpl";
+import * as path from "path";
+import * as fs from "fs";
 
 describe("AdminModelImpl", () => {
 
@@ -10,6 +12,26 @@ describe("AdminModelImpl", () => {
     let mongoClient: MongoClient;
     let db: Db;
 
+    function createFolder(username: string) {
+        const pathToFolder = path.join("./public/pictures/", username);
+        fs.mkdir(pathToFolder, (err) => {
+            if (err) throw err;
+        });
+    }
+
+    function createFile(fileName: string, username: string) {
+        const pathToFile = path.join("./public/pictures/", username, '/', fileName);
+        fs.open(pathToFile, 'as', (err, fd) => {
+            if (err) throw err;
+            else fs.close(fd, (err) => {
+                if (err) throw  err
+            })
+        });
+    }
+
+    function pathTo(username: string, fileName: string): string {
+        return './public/pictures/' + username + '/' + fileName;
+    }
 
     before(async () => {
         mongoClient = await MongoClient.connect('mongodb://localhost', {useUnifiedTopology: true});
@@ -56,7 +78,36 @@ describe("AdminModelImpl", () => {
         });
     });
 
+    describe('#deleteUser', async () => {
+        const user = {username: 'user', password: 'pass'};
+        it('should delete user from Db', async () => {
+            createFolder(user.username);
+            try {
+                const userId = await db.collection('users').insertOne(user);
+                await adminModel.deleteUser(userId.insertedId);
+                expect((await db.collection('user').find({_id: userId.insertedId})).toArray(), "L'utilisateur n'a pas été supprimé de la base de donnée").to.be.empty;
+            } catch (errors) {
+                throw errors
+            }
+        });
 
+        it('should delete user pictures and folder', async () => {
+            try {
+                createFolder(user.username);
+                createFile("a.txt", user.username);
+                createFile("b.txt", user.username);
+                createFile("c.txt", user.username);
+                const userId = await db.collection('users').insertOne(user);
+                await adminModel.deleteUser(userId.insertedId);
+                expect(fs.existsSync(pathTo(user.username, "a.txt"))).to.be.false;
+                expect(fs.existsSync(pathTo(user.username, "b.txt"))).to.be.false;
+                expect(fs.existsSync(pathTo(user.username, "c.txt"))).to.be.false;
+                expect(fs.existsSync("./public/pictures" + user.username)).to.be.false;
+            } catch (errors) {
+                throw errors
+            }
+        })
+    });
 
     afterEach(async () => {
         await db.dropDatabase();
