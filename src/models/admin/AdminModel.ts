@@ -1,26 +1,18 @@
-import {User} from "../auth/User";
+import {ObjectId} from "mongodb";
 
 export interface AdminModel {
 
     /**
      * Retourne la liste de tous les utilisateurs
      */
-    getUsers() : Promise<User[]>;
-
+    getUsers() : Promise<any[]>;
 
     /**
-     * supprime un utilisateur de la base de donnée
+     * Supprime le compte d'un utilisateur de la base de donnée
+     * et supprime son dossier image
      * @param userId
      */
-    deleteUserFromDb(userId : any) : Promise<any>;
-
-
-    /**
-     * supprime le dossier photo (et toutes les photos) d'un utilisateur
-     * précédemment supprimé
-     * @param deletedUser
-     */
-    deleteUsersFolder(deletedUser : any) : Promise<void>;
+    deleteUser(userId : ObjectId): Promise<void>;
 
 
 }

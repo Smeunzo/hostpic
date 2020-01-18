@@ -1,6 +1,7 @@
 import {AuthController} from "../auth/AuthController";
 import {NextFunction, Request, Response, Router} from "express";
 import {AdminModel} from "../../models/admin/AdminModel";
+import { ObjectId } from "mongodb";
 
 
 export class AdminController{
@@ -26,8 +27,7 @@ export class AdminController{
 
     private async deleteUser(request : Request, response : Response , nextFunction : NextFunction){
         try{
-            const deletedUser : any = await this.adminModel.deleteUserFromDb(request.params.id);
-            await this.adminModel.deleteUsersFolder(deletedUser);
+            await this.adminModel.deleteUser(new ObjectId(request.params.id));
             response.redirect('/admin/userControl');
         }catch (errors) {
             const table = await this.adminModel.getUsers();
