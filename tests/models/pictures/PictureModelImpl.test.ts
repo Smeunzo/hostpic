@@ -1,6 +1,6 @@
 import {expect} from "chai";
 import {PictureModelImpl} from "../../../src/models/picture/PictureModelImpl";
-import {Db, MongoClient, ObjectID} from "mongodb";
+import {Db, MongoClient, ObjectID, ObjectId} from "mongodb";
 import {Request} from "express";
 import {User} from "../../../src/models/auth/User";
 import * as fs from "fs";
@@ -53,6 +53,38 @@ describe('PictureModelImpl', () => {
         pictureModel = new PictureModelImpl(db);
     });
 
+
+    describe('#deleteFile', async () => {
+        it("should delete picture information from the DB", async () => {
+            try{
+                await createFile();
+                pictureModel.moveFileToFolder(fakeFile,fakeUser);
+                const pictureId : ObjectId = await pictureModel.uploadPicturesInformationsToDb(fakeFile, fakeUser);
+                await pictureModel.deleteFile(pictureId,fakeUser);
+                expect(db.collection('pictures').findOne({_id : pictureId})).to.be.empty
+            }catch (errors) {
+                console.log(errors.message);
+            }
+
+        });
+
+        it("should delete a picture from user's folder", async () =>{
+            const path = './public/pictures/'+fakeUser.username+'/'+fakeFile.originalname;
+            try{
+                await createFile();
+                pictureModel.moveFileToFolder(fakeFile,fakeUser);
+                await sleep(300);
+                const pictureId : ObjectId = await pictureModel.uploadPicturesInformationsToDb(fakeFile, fakeUser);
+                expect(fs.existsSync('./public/pictures/'+fakeUser.username+'/'+fakeFile.originalname),"Le fichier n'existe pas").to.be.true;
+                await pictureModel.deleteFile(pictureId,fakeUser);
+                await sleep(500);
+                expect(fs.existsSync(path),"Le fichier n'a pas pu être supprimé car il existe d'autres exemplaires disponibles dans la base de donnée").to.be.false;
+            }catch (errors) {
+                throw errors;
+            }
+        })
+    });
+
     describe('#uploadFile', async () => {
         let emptyFile: Request['file'];
         let emptyUser: User;
@@ -60,7 +92,7 @@ describe('PictureModelImpl', () => {
 
         it("should throw \"Une erreur avec le fichier\"", async () => {
             try {
-                await pictureModel.uploadFileToDB(emptyFile, fakeUser);
+                await pictureModel.uploadPicturesInformationsToDb(emptyFile, fakeUser);
             } catch (errors) {
                 expect(errors.message).to.be.equals("Envoie du fichier impossible, il y a une erreur avec le fichier");
                 return;
@@ -71,7 +103,7 @@ describe('PictureModelImpl', () => {
 
         it("should throw \"l'utilisateur n'est pas connecté\" ", async () => {
             try {
-                await pictureModel.uploadFileToDB(fakeFile, emptyUser);
+                await pictureModel.uploadPicturesInformationsToDb(fakeFile, emptyUser);
             } catch (errors) {
                 expect(errors.message).to.be.equals('Envoie du fichier impossible, l\'utilisateur n\'est pas connecté');
                 return;
@@ -81,7 +113,7 @@ describe('PictureModelImpl', () => {
 
         it('should add a picture into DB for specified user', async () => {
             try {
-                await pictureModel.uploadFileToDB(fakeFile, fakeUser);
+                await pictureModel.uploadPicturesInformationsToDb(fakeFile, fakeUser);
                 const picture = await db.collection('pictures').findOne({
                     userId: fakeUser._id
                 });
@@ -107,7 +139,7 @@ describe('PictureModelImpl', () => {
 
 
             } catch (e) {
-                console.log(e.message);
+                throw e;
             }
 
             deleteFile();
@@ -116,29 +148,32 @@ describe('PictureModelImpl', () => {
 
     });
 
+
     //Doit nécessairement avoir un dossier pour l'uilisateur test créer au préalable
     // car la méthode createUsersPictureDirectory est privée
     describe('#findUsersPictures', async () => {
 
         it('should return an array of all images paths', async () => {
-            await creatAndMoveFile();
-            await creatAndMoveFile();
-            await creatAndMoveFile();
+            await createAndMoveFile();
+            await createAndMoveFile();
+            await createAndMoveFile();
 
             const paths: any[] = await pictureModel.findUsersPictures(fakeUser._id);
             expect(paths[0].picture.path).to.be.equals("/pictures/" + fakeUser.username + "/" + fakeFile.originalname);
             expect(paths[1].picture.path).to.be.equals("/pictures/" + fakeUser.username + "/" + fakeFile.originalname);
             expect(paths[2].picture.path).to.be.equals("/pictures/" + fakeUser.username + "/" + fakeFile.originalname);
-            deleteFile();
         });
 
-        async function creatAndMoveFile() {
+        async function createAndMoveFile() {
             createFile();
             await sleep(300);
-            await pictureModel.uploadFileToDB(fakeFile, fakeUser);
+            await pictureModel.uploadPicturesInformationsToDb(fakeFile, fakeUser);
             pictureModel.moveFileToFolder(fakeFile, fakeUser);
         }
     });
+
+
+
 
 
     afterEach(async () => {

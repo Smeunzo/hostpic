@@ -1,22 +1,10 @@
 import {User} from "../auth/User";
 import {Request} from "express";
+import { ObjectId } from "mongodb";
 
 export interface PictureModel {
 
 
-    /**
-     * Extrait les données de file et créer une Picture
-     * et fini par le stocker dans la base de donnée
-     *
-     * Déplace le fichier @see movePictureToUsersFolder
-     *
-     * Lance une erreur si une personne non connecté tente d'envoyer une image
-     * Lance une erreur si le fichier est indéfini
-     * @param file Le fichier correspondant
-     * @param user l'utilisateur qui a "uploadé" le fichier
-     * @deprecated
-     */
-    uploadFile(file: Request['file'], user: User): Promise<void>;
 
     /**
      * Extrait les données de file et créer une Picture
@@ -29,7 +17,7 @@ export interface PictureModel {
      * @param user
      * @return une promesse d'avoir le numéro d'insertion de la Picture
      */
-    uploadFileToDB(file: Request['file'], user: User): Promise<void>
+    uploadPicturesInformationsToDb(file: Request['file'], user: User): Promise<ObjectId>
 
 
     /**
@@ -56,16 +44,12 @@ export interface PictureModel {
      */
     findUsersPictures(user: User): Promise<any[]>;
 
-
     /**
-     * Supprime une image sélectionnée
-     * @deprecated
+     * 1.Supprime les informations d'une photo de la base de donnée
+     * 2.Supprime la photo du dossier utilisateur
+     * @param pictureId
+     * @param user
      */
-    supprimer(id : any) : Promise<void>;
+    deleteFile(pictureId : ObjectId, user : User) : Promise<void>;
 
-
-    deleteFileFromDB(pictureId: any,userId :any ): Promise<any>;
-
-
-    deleteFileFromFolder(pictureInformations: any, user: User) : Promise<void>;
 }
