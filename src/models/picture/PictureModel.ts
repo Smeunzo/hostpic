@@ -5,6 +5,10 @@ import { ObjectId } from "mongodb";
 export interface PictureModel {
 
 
+    /**
+     * Lanceur pour uploadPicturesInformationsToDb et moveFileToFolder
+     */
+    newPictureAdded(file: Request['file'], user : User): Promise<void>;
 
     /**
      * Extrait les données de file et créer une Picture

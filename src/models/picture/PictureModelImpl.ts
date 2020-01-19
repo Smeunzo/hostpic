@@ -5,6 +5,8 @@ import {User} from "../auth/User";
 import * as fs from "fs";
 import * as path from "path";
 import {Request} from "express";
+import Jimp = require("jimp");
+
 
 export class PictureModelImpl implements PictureModel {
 
@@ -13,6 +15,22 @@ export class PictureModelImpl implements PictureModel {
 
     constructor(db: Db) {
         this.db = db;
+    }
+
+    /**
+     * @see PictureModel/newPictureAdded
+     */
+    async newPictureAdded(file: Request['file'], user: User): Promise<void> {
+        await this.uploadPicturesInformationsToDb(file, user);
+        this.moveFileToFolder(file, user);
+        await this.resizePicture(user, file);
+    }
+
+    private async resizePicture(user: User, file: any) {
+        const pathToFile: string = path.join('./public/pictures/', user.username, '/', file.originalname);
+        const image = await Jimp.read(pathToFile);
+        await image.resize(286, Jimp.AUTO);
+        await image.writeAsync(pathToFile);
     }
 
     /**

@@ -34,8 +34,7 @@ export class AlbumController {
 
     private async postAddPicture(request: Request, response: Response, nextFunction: NextFunction) {
         try {
-            await this.pictureModel.uploadPicturesInformationsToDb(request.file, response.locals.loggedUser);
-            this.pictureModel.moveFileToFolder(request.file, response.locals.loggedUser);
+            await this.pictureModel.newPictureAdded(request.file, response.locals.loggedUser);
             response.redirect('/album/mypictures')
         } catch (errors) {
             response.render('upload', {token: request.csrfToken(), errors: errors})
