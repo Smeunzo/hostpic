@@ -5,6 +5,7 @@ import {AdminModel} from "../../../src/models/admin/AdminModel";
 import {AdminModelImpl} from "../../../src/models/admin/AdminModelImpl";
 import * as path from "path";
 import * as fs from "fs";
+import {Utils} from "../../../src/utils/Utils";
 
 describe("AdminModelImpl", () => {
 
@@ -13,14 +14,14 @@ describe("AdminModelImpl", () => {
     let db: Db;
 
     function createFolder(username: string) {
-        const pathToFolder = path.join("./public/pictures/", username);
+        const pathToFolder = path.join(Utils.__pathToStorage, username);
         fs.mkdir(pathToFolder, (err) => {
             if (err) throw err;
         });
     }
 
     function createFile(fileName: string, username: string) {
-        const pathToFile = path.join("./public/pictures/", username, '/', fileName);
+        const pathToFile = path.join(Utils.__pathToStorage, username, '/', fileName);
         fs.open(pathToFile, 'as', (err, fd) => {
             if (err) throw err;
             else fs.close(fd, (err) => {
@@ -30,7 +31,7 @@ describe("AdminModelImpl", () => {
     }
 
     function pathTo(username: string, fileName: string): string {
-        return './public/pictures/' + username + '/' + fileName;
+        return path.join(Utils.__pathToStorage , username , fileName);
     }
 
     before(async () => {
@@ -102,7 +103,7 @@ describe("AdminModelImpl", () => {
                 expect(fs.existsSync(pathTo(user.username, "a.txt"))).to.be.false;
                 expect(fs.existsSync(pathTo(user.username, "b.txt"))).to.be.false;
                 expect(fs.existsSync(pathTo(user.username, "c.txt"))).to.be.false;
-                expect(fs.existsSync("./public/pictures" + user.username)).to.be.false;
+                expect(fs.existsSync(Utils.__pathToStorage + user.username)).to.be.false;
             } catch (errors) {
                 throw errors
             }

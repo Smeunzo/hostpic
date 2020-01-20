@@ -1,21 +1,21 @@
-import { expect } from "chai";
+import {expect} from "chai";
 import "mocha";
 import * as bcrypt from "bcrypt";
-import { AuthModelImpl } from "../../../src/models/auth/AuthModelImpl"
-import { MongoClient, Db, ObjectID } from "mongodb";
-import { ValidationError } from "class-validator";
+import {AuthModelImpl} from "../../../src/models/auth/AuthModelImpl"
+import {MongoClient, Db, ObjectID} from "mongodb";
+import {ValidationError} from "class-validator";
 
 describe('AuthModelImpl', () => {
-    let authModel : AuthModelImpl;
-    let mongoClient : MongoClient;
-    let db : Db;
+    let authModel: AuthModelImpl;
+    let mongoClient: MongoClient;
+    let db: Db;
 
-    const logInData = { username : 'bob', password : 'toto' };
-    const logInData2 = { username : 'bb', password : 'ccazdazdzdadazdazdadazdazdazdazdazdazazdazdazdaz' };
+    const logInData = {username: 'bob', password: 'toto'};
+    const logInData2 = {username: 'bb', password: 'ccazdazdzdadazdazdadazdazdazdazdazdazazdazdazdaz'};
     logInData.username = 'bob';
     logInData.password = 'toto';
 
-    function extractMessages(errors : ValidationError[]) : string[] {
+    function extractMessages(errors: ValidationError[]): string[] {
         const messages = [];
         for (const error of errors)
             for (const key in error.constraints)
@@ -24,7 +24,7 @@ describe('AuthModelImpl', () => {
     }
 
     before(async () => {
-        mongoClient = await MongoClient.connect('mongodb://localhost', { useUnifiedTopology: true } );
+        mongoClient = await MongoClient.connect('mongodb://localhost', {useUnifiedTopology: true});
         db = mongoClient.db('test');
         authModel = new AuthModelImpl(db);
     });
@@ -32,8 +32,9 @@ describe('AuthModelImpl', () => {
     describe('#getUserId', async () => {
         it('should return the user id', async () => {
             const result = await db.collection('users').insertOne({
-                username : logInData.username,
-                password : await bcrypt.hash(logInData.password, 10) });
+                username: logInData.username,
+                password: await bcrypt.hash(logInData.password, 10)
+            });
             const id = result.insertedId;
             expect((await authModel.getUserId(logInData)).toString()).be.equal(id.toString());
         });
@@ -51,10 +52,11 @@ describe('AuthModelImpl', () => {
     describe('#getUserFromId', async () => {
         it('should return the user object', async () => {
             const result = await db.collection('users').insertOne({
-                username : logInData.username,
-                password : await bcrypt.hash(logInData.password, 10) });
+                username: logInData.username,
+                password: await bcrypt.hash(logInData.password, 10)
+            });
             const id = result.insertedId;
-            expect((await authModel.getUserFromId(id))).be.deep.equals({_id : id, username : logInData.username});
+            expect((await authModel.getUserFromId(id))).be.deep.equals({_id: id, username: logInData.username});
         });
         it('should throw "User not found"', async () => {
             try {
@@ -69,14 +71,18 @@ describe('AuthModelImpl', () => {
 
     describe('#signUp', async () => {
         it('should add a user and return the id', async () => {
-            const id = await authModel.signUp(logInData);
-            const user = await db.collection('users').findOne({_id : id});
-            expect(user.username).be.deep.equals(logInData.username);
+            try{
+                const id = await authModel.signUp(logInData);
+                const user = await db.collection('users').findOne({_id: id});
+                expect(user.username).be.deep.equals(logInData.username);
+            }catch (errors) {
+                throw errors;
+            }
         });
 
         it('should hash the password', async () => {
             const id = await authModel.signUp(logInData);
-            const user = await db.collection('users').findOne({_id : id});
+            const user = await db.collection('users').findOne({_id: id});
             expect(await bcrypt.compare(logInData.password, user.password)).to.be.true;
         });
 

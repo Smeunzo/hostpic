@@ -16,12 +16,26 @@ import connectMongoDbStore = require("connect-mongodb-session");
 import {AdminModel} from "./models/admin/AdminModel";
 import {AdminModelImpl} from "./models/admin/AdminModelImpl";
 import {AdminController} from "./controllers/admin/AdminController";
+import {PictureController} from "./controllers/album/PictureController";
+import {NextFunction, Response , Request} from "express";
+
+
+
+// noinspection JSUnusedLocalSymbols
+function handleError404(request: Request, response: Response, next : NextFunction): void {
+    response.status(404).render('error404');
+}
+// noinspection JSUnusedLocalSymbols
+function handleError500(error : any, request: Request, response: Response, next : NextFunction): void {
+    response.status(500).render('error500');
+}
 
 async function start() {
      const mongoClient = await MongoClient.connect('mongodb://localhost',{useUnifiedTopology : true});
      const db : Db = mongoClient.db('project');
 
     const homeController = new HomeController();
+    const pictureController = new PictureController();
 
     const pictureModel = new PictureModelImpl(db);
     const albumController = new AlbumController(pictureModel);
@@ -70,7 +84,10 @@ async function start() {
     myExpress.use('/auth',authController.router());
     myExpress.use('/album',albumController.router(authController));
     myExpress.use('/admin',adminController.router(authController));
+    myExpress.use('/pictures',pictureController.router(authController));
     myExpress.use(express.static('public'));
+    myExpress.use(handleError500);
+    myExpress.use(handleError404);
     myExpress.listen(4200, function () {
         console.log('Go to http://localhost:4200')
     });

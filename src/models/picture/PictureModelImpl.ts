@@ -6,6 +6,7 @@ import * as fs from "fs";
 import * as path from "path";
 import {Request} from "express";
 import Jimp = require("jimp");
+import {Utils} from "../../utils/Utils";
 
 
 export class PictureModelImpl implements PictureModel {
@@ -24,13 +25,6 @@ export class PictureModelImpl implements PictureModel {
         await this.uploadPicturesInformationsToDb(file, user);
         this.moveFileToFolder(file, user);
         await this.resizePicture(user, file);
-    }
-
-    private async resizePicture(user: User, file: any) {
-        const pathToFile: string = path.join('./public/pictures/', user.username, '/', file.originalname);
-        const image = await Jimp.read(pathToFile);
-        await image.resize(286, Jimp.AUTO);
-        await image.writeAsync(pathToFile);
     }
 
     /**
@@ -56,9 +50,10 @@ export class PictureModelImpl implements PictureModel {
     moveFileToFolder(file: Request['file'], user: User): void {
         if (!user) throw Error("L'utilisateur n'est pas connecté");
         if (!file) throw Error("Une erreur avec le fichier");
-        this.movePictureToUsersFolder(user, file);
+        this.movePictureToTheCorrespondingUsersFolder(user,file);
     }
 
+    // noinspection JSUnusedLocalSymbols
     /**
      * Déplace l'image se trouvant dans public/pictures
      * vers public/pictures/username
@@ -68,6 +63,8 @@ export class PictureModelImpl implements PictureModel {
      *
      * @param user Correspond à l'utilisateur qui a "uploadé" la photo
      * @param file Est le fichier correspondant
+     * @deprecated
+     * NOT USED
      */
     private movePictureToUsersFolder(user: User, file: any): void {
 
@@ -77,6 +74,32 @@ export class PictureModelImpl implements PictureModel {
         fs.rename(currentPath, destPath, (err) => {
             if (err) throw Error(err.message + "déplacement de fichier impossible");
         });
+    }
+
+    /**
+     * replica de la fonction movePictureToUsersFolder
+     */
+    private movePictureToTheCorrespondingUsersFolder(user : User , file : Request['file']) : void {
+
+        const currentPath = path.join(Utils.__pathToStorage,'/',file.originalname);
+        const destPath = path.join(Utils.__pathToStorage,'/',user.username,'/',file.originalname);
+
+        fs.rename(currentPath,destPath,(err)=>{
+            if(err) throw Error(err.message + "déplacement de fichiers impossible");
+        });
+    }
+
+    // noinspection JSMethodCanBeStatic
+    /**
+     *
+     * @param user
+     * @param file
+     */
+    private async resizePicture(user: User, file: any) {
+        const pathToFile: string = path.join(Utils.__pathToStorage, user.username, '/', file.originalname);
+        const image = await Jimp.read(pathToFile);
+        await image.resize(286, Jimp.AUTO);
+        await image.writeAsync(pathToFile);
     }
 
     /**
@@ -96,7 +119,7 @@ export class PictureModelImpl implements PictureModel {
     async deleteFile(pictureId: ObjectId, user: User): Promise<void> {
         try {
             const picturesInformation = await this.deleteFileFromDB(pictureId);
-            await this.deleteFileFromFolder(picturesInformation, user);
+            await this.deletePictureFromUsersFolder(picturesInformation,user);
         } catch (errors) {
             throw errors;
         }
@@ -112,11 +135,14 @@ export class PictureModelImpl implements PictureModel {
         return (await this.db.collection('pictures').findOneAndDelete({_id: pictureId})).value
     }
 
+    // noinspection JSUnusedLocalSymbols
     /**
      * Supprime la photo du dossier utilisateur
      * @param pictureInformations un object contenant les informations d'une photo à supprimer
      *
      * @param user
+     * @deprecated
+     * NOT USED
      */
     private async deleteFileFromFolder(pictureInformations: any, user: User): Promise<void> {
         if (!pictureInformations.picture || !pictureInformations.userId || !pictureInformations._id) throw Error("Impossible de supprimer une image d'un dossier");
@@ -138,5 +164,31 @@ export class PictureModelImpl implements PictureModel {
         }
     }
 
+    /**
+     * replica de deleteFileFromFolder
+     *
+     * @param pictureInformations
+     * @param user
+     */
+    private async deletePictureFromUsersFolder(pictureInformations : any , user : User) : Promise<void>{
+        if (!pictureInformations.picture || !pictureInformations.userId || !pictureInformations._id) throw Error("Impossible de supprimer cette image");
+
+        const pictures: any[] = await this.db.collection('pictures').find({userId: new ObjectId(user._id)}).toArray();
+
+        let existInDB = 0;
+        for (let picture of pictures) {
+            if (picture.picture.name == pictureInformations.picture.name) {
+                existInDB = 1;
+                break;
+            }
+        }
+
+        if (existInDB == 0) {
+            const pathToPicture = path.join(Utils.__pathToStorage,'/',user.username,'/',pictureInformations.picture.name);
+            fs.unlink(pathToPicture, (err) => {
+                if (err) throw err
+            })
+        }
+    }
 
 }

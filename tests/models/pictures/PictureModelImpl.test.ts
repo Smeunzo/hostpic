@@ -5,6 +5,7 @@ import {Request} from "express";
 import {User} from "../../../src/models/auth/User";
 import * as fs from "fs";
 import * as path from "path";
+import {Utils} from "../../../src/utils/Utils";
 
 describe('PictureModelImpl', () => {
 
@@ -19,15 +20,15 @@ describe('PictureModelImpl', () => {
         encoding: "7bit",
         mimetype: "image/png",
         size: 9000,
-        destination: "./public/pictures",
+        destination: Utils.__pathToStorage,
         filename: "image.png",
-        path: "/public/pictures/image.png",
+        path: Utils.__pathToStorage+"/image.png",
         buffer: Buffer.from(new ArrayBuffer(0), 0, 0),
         location: ""
     };
 
     function createFile() {
-        const pathToFile = path.join("./public/pictures/", "image.png");
+        const pathToFile = path.join(Utils.__pathToStorage,'/', "image.png");
         fs.open(pathToFile, 'as', (err, fd) => {
             if (err) throw err;
             else fs.close(fd, (err) => {
@@ -37,7 +38,7 @@ describe('PictureModelImpl', () => {
     }
 
     function deleteFile() {
-        const pathToFile = path.join("./public/pictures/", fakeUser.username, "image.png");
+        const pathToFile = path.join(Utils.__pathToStorage,'/', fakeUser.username, "image.png");
         fs.unlink(pathToFile, (err) => {
             if (err) throw err;
         })
@@ -69,16 +70,16 @@ describe('PictureModelImpl', () => {
         });
 
         it("should delete a picture from user's folder", async () =>{
-            const path = './public/pictures/'+fakeUser.username+'/'+fakeFile.originalname;
+            const pathToFile = path.join( Utils.__pathToStorage ,fakeUser.username,fakeFile.originalname);
             try{
                 await createFile();
                 pictureModel.moveFileToFolder(fakeFile,fakeUser);
                 await sleep(300);
                 const pictureId : ObjectId = await pictureModel.uploadPicturesInformationsToDb(fakeFile, fakeUser);
-                expect(fs.existsSync('./public/pictures/'+fakeUser.username+'/'+fakeFile.originalname),"Le fichier n'existe pas").to.be.true;
+                expect(fs.existsSync(Utils.__pathToStorage+'/'+fakeUser.username+'/'+fakeFile.originalname),"Le fichier n'existe pas").to.be.true;
                 await pictureModel.deleteFile(pictureId,fakeUser);
                 await sleep(500);
-                expect(fs.existsSync(path),"Le fichier n'a pas pu être supprimé car il existe d'autres exemplaires disponibles dans la base de donnée").to.be.false;
+                expect(fs.existsSync(pathToFile),"Le fichier n'a pas pu être supprimé car il existe d'autres exemplaires disponibles dans la base de donnée").to.be.false;
             }catch (errors) {
                 throw errors;
             }
@@ -129,8 +130,8 @@ describe('PictureModelImpl', () => {
         it("should move picture to the user's folder ", async () => {
             createFile();
             await sleep(300);
-            const oldPath = "./" + fakeFile.path;
-            const newPath = "./public/pictures/" + fakeUser.username + "/" + fakeFile.originalname;
+            const oldPath = path.join(Utils.__pathToStorage,fakeFile.originalname);
+            const newPath = path.join(Utils.__pathToStorage , fakeUser.username , "/" , fakeFile.originalname);
             try {
                 expect(fs.existsSync(oldPath)).to.be.true;
                 pictureModel.moveFileToFolder(fakeFile, fakeUser);
