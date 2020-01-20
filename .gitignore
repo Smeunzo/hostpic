@@ -7,4 +7,4 @@ mongoDB
 .idea
 /public/pictures/
 /dom
-/upload
+upload
