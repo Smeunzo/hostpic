@@ -32,6 +32,7 @@ export class AlbumController {
     private getAddPicture(request: Request, response: Response, nextFunction: NextFunction) {
         response.render('upload', {token: request.csrfToken()});
     }
+
     //noinspection JSUnusedLocalSymbols
     private async postAddPicture(request: Request, response: Response, nextFunction: NextFunction) {
         try {
@@ -41,6 +42,7 @@ export class AlbumController {
             response.render('upload', {token: request.csrfToken(), errors: errors})
         }
     }
+
     //noinspection JSUnusedLocalSymbols
 
     private async getMyPictures(request: Request, response: Response, nextFunction: NextFunction) {
@@ -57,12 +59,19 @@ export class AlbumController {
     private async postDelete(request: Request, response: Response, nextFunction: NextFunction) {
         try {
             await this.pictureModel.deleteFile(new ObjectId(request.params.id), response.locals.loggedUser);
-            response.redirect('/album/mypictures')
+            if (request.xhr) {
+                response.json({success: true, _id: request.params.id});
+            } else response.redirect('/album/mypictures');
         } catch (errors) {
-            const photo: any[] = await this.pictureModel.findUsersPictures(response.locals.loggedUser);
-            response.render('pictures', {errors: errors, pictures: photo, token: request.csrfToken()})
+            if (request.xhr) {
+                response.json({success: false, _id: request.params.id}).status(404);
+            } else {
+                const photo: any[] = await this.pictureModel.findUsersPictures(response.locals.loggedUser);
+                response.render('pictures', {errors: errors, pictures: photo, token: request.csrfToken()})
+            }
         }
     }
+
     //noinspection JSUnusedLocalSymbols,JSMethodCanBeStatic
     private redirectToUploadPage(request: Request, response: Response, nextFunction: NextFunction) {
         response.redirect('/album/upload');
@@ -94,6 +103,6 @@ export class AlbumController {
                 cb(null, file.originalname);
             }
         });
-        this.upload = multer({storage : storage});
+        this.upload = multer({storage: storage});
     }
 }

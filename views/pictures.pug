@@ -6,10 +6,27 @@ block content
     h1  Mes photos
     div(class="row")
         each picture in pictures
-            div(class="col-sm-4 mb-4 ")
-                div(class="card" style="width: 18rem")
-                    img(src=picture.picture.path class="card-img-top" )
-                    div(class="card-body")
-                        form(method="post" action="/album/delete/" + picture._id)
-                            button(type="submit" class="btn btn-danger") Supprimer
+            div(class="deletable")
+                div(class="col-sm-4 mb-4")
+                    div(class="card" style="width: 18rem")
+                        img(src=picture.picture.path class="card-img-top"  )
+                        div(class="card-body")
+                            button(type="submit" id=picture._id name="delete-btn" class="btn btn-danger") Supprimer
                             input(type="hidden" name="_csrf" value=token)
+
+block script
+    script(src="/utils.js")
+    script.
+        $(document).ready(
+            function () {
+                const btns = document.querySelectorAll("[name=delete-btn]");
+                const token = "#{token}";
+                for (let i = 0; i < btns.length; i++) {
+                    const id = btns[i].getAttribute('id');
+                    btns[i].addEventListener("click", function () {
+                        const xhr = createXhrObject();
+                        processDeletion(xhr, btns[i], token,id,deleteNode);
+                    })
+                }
+            }
+        )
