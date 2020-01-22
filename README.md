@@ -24,7 +24,7 @@ npm install // à la racine du projet
     //dans un terminal séparé à la racine 
     npm start
 
-Vous aurez besoin de créer en plus certains dossiers (en attendant que je fasse les méthodes qui les créer automatiquement)
+Vous aurez besoin de créer en plus certains dossiers (en attendant que je fasse les méthodes qui les crée automatiquement)
 * /upload à la racine 
 * /upload/pictures
 * /upload/pictures/testAjoutFichier (pour faire passer les tests)
