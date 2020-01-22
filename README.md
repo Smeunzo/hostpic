@@ -28,3 +28,6 @@ Vous aurez besoin de créer en plus certains dossiers (en attendant que je fasse
 * /upload à la racine 
 * /upload/pictures
 * /upload/pictures/testAjoutFichier (pour faire passer les tests)
+
+#### quelques screenshots
+    ![alt text](https://github.com/Smeunzo/hostpic/blob/master/readme_images/administration.png "administration") 
