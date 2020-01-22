@@ -34,7 +34,7 @@ Vous aurez besoin de créer en plus certains dossiers (en attendant que je fasse
 ##### login
 ![alt text](readme_images/login.png "se connecter ou s'inscrire")
 
-#####upload 
+##### upload 
 ![alt text](readme_images/upload.png "uploader une image ")
 
 ##### mes photos
