@@ -30,4 +30,15 @@ Vous aurez besoin de créer en plus certains dossiers (en attendant que je fasse
 * /upload/pictures/testAjoutFichier (pour faire passer les tests)
 
 #### quelques screenshots
-![alt text](readme_images/administration.png "administration") 
+
+##### login
+![alt text](readme_images/login.png "se connecter ou s'inscrire")
+
+#####upload 
+![alt text](readme_images/upload.png "uploader une image ")
+
+##### mes photos
+![alt text](readme_images/mes_photos.png "l'ensemble des photos postées")
+
+##### administration
+![alt text](readme_images/administration.png "supprimer un utilisateur") 
