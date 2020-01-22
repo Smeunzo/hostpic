@@ -86,7 +86,7 @@ async function start() {
     myExpress.use('/admin',adminController.router(authController));
     myExpress.use('/pictures',pictureController.router(authController));
     myExpress.use(express.static('public'));
-    //myExpress.use(handleError500);
+    myExpress.use(handleError500);
     myExpress.use(handleError404);
     myExpress.listen(4200, function () {
         console.log('Go to http://localhost:4200')
