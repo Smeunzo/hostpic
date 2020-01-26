@@ -17,5 +17,5 @@ export interface Picture {
     /**
      * date de création
      */
-    createdAt : number;
+    createdAt : Date;
 }
