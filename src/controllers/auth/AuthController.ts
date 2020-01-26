@@ -69,15 +69,7 @@ export class AuthController {
         })
     }
 
-    /**
-     * Cette méthode sera utile dans le cas ou
-     * j'ai une partie administration et que je souhaite
-     * rediriger un utilisateur non logger d'acceder à /admin
-     *
-     * @param request
-     * @param response
-     * @param next
-     */
+
     public async redirectUnLoggedUser(request: Request, response: Response, next: NextFunction): Promise<void> {
         if (response.locals.loggedUser == null) {
             response.redirect(this.authUrl+'/login');
