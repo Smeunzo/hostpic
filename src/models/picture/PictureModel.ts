@@ -56,4 +56,9 @@ export interface PictureModel {
      */
     deleteFile(pictureId : ObjectId, user : User) : Promise<void>;
 
+    /**
+     * @api
+     *
+     */
+    findLastPicture(user : User) : Promise<any>;
 }

@@ -4,7 +4,7 @@ extends layout
 block title
     | Postez un photo
 block content
-    form(enctype="multipart/form-data" method="post" action="?_csrf="+token)
+    form(enctype="multipart/form-data" method="post" action="?_csrf=" + token)
         div(class="col-sm-6")
             div(class="input-group")
                 div(class="custom-file")
@@ -12,6 +12,10 @@ block content
                     input(type="file" name="image"  id="inputGroupeFile04" class="custom-file-input" required)
                 div(class="input-group-append")
                     button(class="btn btn-outline-secondary" type="submit" ) Upload
+    div(class="photo")
+        h3(style="margin-top : 10px;")
+            | les photos que tu viens d'ajouter :
+
 
 block script
     script.
@@ -19,3 +23,26 @@ block script
             const fileName = e.target.files[0].name;
             $('.custom-file-label').html(fileName);
         });
+        const result = $.get({
+            url: '/album/lastpic',
+            dataType: 'json',
+        });
+        result.done(
+            function () {
+                const file = result.responseJSON;
+                if(file.status === "bad") alert('impossible de récupérer la dernière photo');
+                const cardElement = document.createElement('div');
+                const rowElement = document.createElement('div')
+                const imageElement = document.createElement('img');
+
+                rowElement.setAttribute('class','card');
+                cardElement.setAttribute('class','card');
+                imageElement.setAttribute('src',file.picture.picture.path);
+                imageElement.setAttribute('class','card-img-top');
+
+                const photoElement = document.querySelector('.photo');
+                photoElement.appendChild(rowElement);
+                rowElement.appendChild(cardElement);
+                cardElement.appendChild(imageElement);
+            }
+        )

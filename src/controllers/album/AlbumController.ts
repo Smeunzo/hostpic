@@ -24,6 +24,7 @@ export class AlbumController {
         router.post('/upload', this.upload.single('image'), this.postAddPicture.bind(this));
         router.post('/delete/:id', this.postDelete.bind(this));
         router.get('/mypictures', this.getMyPictures.bind(this));
+        router.get('/lastpic',this.getLastPicture.bind(this));
         return router;
     }
 
@@ -69,6 +70,15 @@ export class AlbumController {
                 const photo: any[] = await this.pictureModel.findUsersPictures(response.locals.loggedUser);
                 response.render('pictures', {errors: errors, pictures: photo, token: request.csrfToken()})
             }
+        }
+    }
+
+    private async getLastPicture(request: Request, response: Response, nextFunction: NextFunction){
+        try{
+            const picture = await this.pictureModel.findLastPicture(response.locals.loggedUser);
+            response.json({status : 'ok' , picture : picture});
+        }catch (errors) {
+            response.json({status : "bad" , errors : errors});
         }
     }
 

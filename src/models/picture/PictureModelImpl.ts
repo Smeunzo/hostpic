@@ -39,7 +39,7 @@ export class PictureModelImpl implements PictureModel {
 
         const picture: Picture = {
             name: file.originalname,
-            createdAt: Date.now(),
+            createdAt: new Date(Date.now()),
             path: "/pictures/" + user.username + '/' + file.originalname,
             size: file.size
         };
@@ -189,6 +189,23 @@ export class PictureModelImpl implements PictureModel {
                 if (err) throw err
             })
         }
+    }
+
+    /**
+     * @see PictureModel/findLastPicture
+     * @param user
+     * @return object {_id : ,userId : , picture : {} }
+     */
+    async findLastPicture(user: User): Promise<any> {
+        const picture : any[] = await this.db.collection('pictures').find({userId : new ObjectId(user._id)}).toArray();
+        let oldestPict = picture[0];
+
+        for(let i = 1;i < picture.length ;i++ ){
+           if(oldestPict.picture.createdAt < picture[i].picture.createdAt){
+               oldestPict = picture[i];
+           }
+        }
+        return oldestPict;
     }
 
 }
