@@ -19,11 +19,11 @@ block script
     script.
         $(document).ready(
             function () {
-                const btns = document.querySelectorAll("[name=delete-btn]");
+                const btns = $("[name=delete-btn]");
                 const token = "#{token}";
                 for (let i = 0; i < btns.length; i++) {
-                    const id = btns[i].getAttribute('id');
-                    btns[i].addEventListener("click", function () {
+                    const id = $(btns[i]).attr('id');
+                    $(btns[i]).click(function () {
                         const xhr = createXhrObject();
                         processDeletion(xhr, btns[i], token,id,deleteNode);
                     })

@@ -19,10 +19,10 @@ function createXhrObject()
 }
 
 function deleteNode(element ){
-    while(element.getAttribute('class') !== 'deletable'){
-        element = element.parentElement;
+    while($(element).attr('class') !== 'deletable'){
+        element = $(element).parent();
     }
-    element.parentElement.removeChild(element);
+    $(element).remove();
 }
 
 function processDeletion(xhr, element, token , id , cb) {
@@ -41,4 +41,5 @@ function processDeletion(xhr, element, token , id , cb) {
     xhr.setRequestHeader('X-CSRF-Token', token);
 
     xhr.send();
+
 }
