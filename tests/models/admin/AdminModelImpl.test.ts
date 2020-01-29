@@ -15,9 +15,11 @@ describe("AdminModelImpl", () => {
 
     function createFolder(username: string) {
         const pathToFolder = path.join(Utils.__pathToStorage, username);
-        fs.mkdir(pathToFolder, (err) => {
-            if (err) throw err;
-        });
+        if(!fs.existsSync(pathToFolder)){
+            fs.mkdir(pathToFolder, (err) => {
+                if (err) throw err;
+            });
+        }
     }
 
     function createFile(fileName: string, username: string) {
@@ -32,6 +34,10 @@ describe("AdminModelImpl", () => {
 
     function pathTo(username: string, fileName: string): string {
         return path.join(Utils.__pathToStorage , username , fileName);
+    }
+
+    function sleep(ms: number) {
+        return new Promise(resolve => setTimeout(resolve, ms));
     }
 
     before(async () => {
@@ -95,6 +101,7 @@ describe("AdminModelImpl", () => {
         it('should delete user pictures and folder', async () => {
             try {
                 createFolder(user.username);
+                await sleep(400);
                 createFile("a.txt", user.username);
                 createFile("b.txt", user.username);
                 createFile("c.txt", user.username);
