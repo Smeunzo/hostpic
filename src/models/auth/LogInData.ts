@@ -5,7 +5,7 @@ import {Expose} from "class-transformer";
 
 export class LogInData{
     /**
-     * Nom d'utilisateur
+     * Username
      */
     @Expose()
     @IsString()
@@ -15,7 +15,7 @@ export class LogInData{
     username :string;
 
     /**
-     * Mot de passe
+     * Password
      */
     @Expose()
     @IsString()
