@@ -27,7 +27,7 @@ export interface PictureModel {
     /**
      * @context Because I use multer for uploading file
      * I have to set the upload storage at the same place
-     * where the router is
+     * where the router is, and it's in the AlbumController class
      *
      * Move the file to the corresponding user's folder
      *
