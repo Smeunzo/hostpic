@@ -6,7 +6,7 @@ export interface PictureModel {
 
 
     /**
-     * It just launches uploadPicturesInformationsToDb and moveFileToFolder
+     * It just launches used methods when a user adds a picture.
      */
     newPictureAdded(file: Request['file'], user : User): Promise<void>;
 
