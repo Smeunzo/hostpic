@@ -38,9 +38,13 @@ export class AlbumController {
     private async postAddPicture(request: Request, response: Response, nextFunction: NextFunction) {
         try {
             await this.pictureModel.newPictureAdded(request.file, response.locals.loggedUser);
-            response.redirect('/album/mypictures')
+            if(request.xhr){
+                response.json({success : "ok"})
+            }else response.redirect('/album/mypictures')
         } catch (errors) {
-            response.render('upload', {token: request.csrfToken(), errors: errors})
+            if(request.xhr){
+                response.json({success : "bad" , errors : errors.message})
+            }else response.render('upload', {token: request.csrfToken(), errors: errors})
         }
     }
 

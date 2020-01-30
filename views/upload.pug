@@ -4,45 +4,46 @@ extends layout
 block title
     | Postez un photo
 block content
-    form(enctype="multipart/form-data" method="post" action="?_csrf=" + token)
+    form(enctype="multipart/form-data" method="post" id="formUpload")
         div(class="col-sm-6")
             div(class="input-group")
                 div(class="custom-file")
                     label(class="custom-file-label" for="inputGroupeFile04") Choisissez un fichier
                     input(type="file" name="image"  id="inputGroupeFile04" class="custom-file-input" required)
                 div(class="input-group-append")
-                    button(class="btn btn-outline-secondary" type="submit" ) Upload
+                    button(class="btn btn-outline-secondary" type="submit" id="buttonForm") Upload
     div(class="photo")
         h3(style="margin-top : 10px;")
             | les photos que tu viens d'ajouter :
+        div(class="row")
 
 
 block script
+    script(src="/utils.js")
     script.
         $('input[type="file"]').change(function (e) {
             const fileName = e.target.files[0].name;
-            $('.custom-file-label').html(fileName);
+            $('.custom-file-label').html(fileName)
+            document.querySelector('#buttonForm').removeAttribute('disabled');
         });
-        const result = $.get({
-            url: '/album/lastpic',
-            dataType: 'json',
-        });
-        result.done(
-            function () {
-                const file = result.responseJSON;
-                if(file.status === "bad") alert('impossible de récupérer la dernière photo');
-                const cardElement = document.createElement('div');
-                const rowElement = document.createElement('div')
-                const imageElement = document.createElement('img');
-
-                rowElement.setAttribute('class','card');
-                cardElement.setAttribute('class','card');
-                imageElement.setAttribute('src',file.picture.picture.path);
-                imageElement.setAttribute('class','card-img-top');
-
-                const photoElement = document.querySelector('.photo');
-                photoElement.appendChild(rowElement);
-                rowElement.appendChild(cardElement);
-                cardElement.appendChild(imageElement);
+        $("#formUpload").submit( function (e) {
+                document.querySelector('#buttonForm').setAttribute('disabled','');
+                const form = new FormData(document.querySelector('#formUpload'));
+                const url = "?_csrf=" + "#{token}"
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: form,
+                    processData: false,
+                    contentType: false,
+                    success: function (o, p, q) {
+                        const result = q.responseJSON;
+                        if (result.success === "bad") {
+                            displayError(result);
+                        } else getLastPic();
+                    }
+                })
+                e.preventDefault();
             }
-        )
+        );
+
