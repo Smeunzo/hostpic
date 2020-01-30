@@ -3,16 +3,18 @@ import {ObjectId} from "mongodb";
 export interface AdminModel {
 
     /**
-     * Retourne la liste de tous les utilisateurs
+     * Returns an array of all Users
+     *
+     * @return a promise to get an array of all Users
      */
     getUsers() : Promise<any[]>;
 
     /**
-     * Supprime le compte d'un utilisateur de la base de donnée
-     * et supprime son dossier image
+     * Removes a user's account from the database and removes his
+     * picture folder.
+     *
      * @param userId
      */
     deleteUser(userId : ObjectId): Promise<void>;
-
 
 }
