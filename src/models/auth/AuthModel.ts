@@ -11,7 +11,7 @@ export interface AuthModel {
      * @throws Error if username is already used.
      *
      * @param data
-     * @return a promise to get the insertedId of the user (which is the userId)
+     * @return a promise to get the user's insertedId (which is the userId)
      */
     signUp(data : any) : Promise<any>;
 
