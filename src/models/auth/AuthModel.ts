@@ -3,44 +3,39 @@ import { User } from "./User";
 export interface AuthModel {
 
     /**
-     * Enregistre l'ulisateur dans la base de donnée
-     * via les données passées en paramètre
+     * It registers the user in the database with datas
+     * given in parameters.
      *
-     * Lève une exception si les contraintes de taille
-     * pour le mot de pass ou le nom d'utilisateur ne sont
-     * pas respectées
-     * ou si le nom d'utilisateur est déjà pris
+     * @throws Error if the username the password
+     * do not respect length constraint
+     * @throws Error if username is already used.
      *
-     * @param data correspond à logInData
-     * @return une promesse d'avoir l'identifiant du nouvel
-     * utilisateur
+     * @param data
+     * @return a promise to get the user's insertedId (which is the userId)
      */
     signUp(data : any) : Promise<any>;
 
-    /** Récupère l'identifiant d'un utilisateur
-     * à partir des informations passées en paramètres
+    /**
+     * Process the connection of the user.
+     * It returns user id from data passed to parameter.
      *
-     * Lève une exception si les contraintes de taille
-     * pour le mot de pass ou le nom d'utilisateur ne sont
-     * pas respectées
-     * ou si le nom d'utilisateur ou le mot de passe
-     * sont incorrectes
+     * @throws Error if the username the password
+     * do not respect length constraint
+     * @throws Error if username is already used.
      *
-     * @param data (voir LogInData)
-     * @return une promesse d'avoir l'identifiant de l'utilisateur
+     * @param data an object which contains the username and password
+     * @return a promise to get the userId.
      */
     getUserId(data : any) : Promise<any>;
 
     /**
-     * Récupère un objet contenant les informations
-     * liées à un utilisateur à partir de son identifiant.
+     * It returns user's information from the id passed
+     * in parameters.
      *
-     * une exception est levée si le nom d'utilisateur
-     * n'est pas valide ou n'existe pas
+     * @throws Error if username is invalid or doesn't exist.
      *
-     *
-     * @param id Identifiant de l'utilisateur
-     * @return une promesse d'avoir un objet représentant un utilisateur
+     * @param id the user id
+     * @return a promise to get an object which represents User.
      */
     getUserFromId(id : any) : Promise<User>;
 }

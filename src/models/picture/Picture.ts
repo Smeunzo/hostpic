@@ -1,21 +1,21 @@
 export interface Picture {
     /**
-     * Le nom du fichier
+     * Name of the picture
      */
     name : string
 
     /**
-     * chemin vers le fichier
+     * The path to the picture
      */
     path : string
 
     /**
-     * La taille en bytes de l'image
+     * Size of the picture
      */
     size : any
 
     /**
-     * date de création
+     * Creation date
      */
     createdAt : Date;
 }

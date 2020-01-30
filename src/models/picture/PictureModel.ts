@@ -6,59 +6,61 @@ export interface PictureModel {
 
 
     /**
-     * Lanceur pour uploadPicturesInformationsToDb et moveFileToFolder
+     * It just launches used methods when a user adds a picture.
      */
     newPictureAdded(file: Request['file'], user : User): Promise<void>;
 
     /**
-     * Extrait les données de file et créer une Picture
-     * et fini par le stocker dans la base de donnée
+     * Extract name and size from the file , create the path with the name and username,
+     * store the Picture (the class, not the real picture) in the database.
      *
-     * Lance une erreur si une personne non connecté tente d'envoyer une image
-     * Lance une erreur si le fichier est indéfini
+     * @throws Error if non-connected user try to send a Picture
+     * @throws Error if the file is undefined.
      *
      * @param file
      * @param user
-     * @return une promesse d'avoir le numéro d'insertion de la Picture
+     * @return Promise of get the insertedId of the picture.
      */
     uploadPicturesInformationsToDb(file: Request['file'], user: User): Promise<ObjectId>
 
 
     /**
-     * Déplace le fichier file dans le dossier
-     * de l'utilisateur correspondant
+     * @context Because I use multer for uploading file
+     * I have to set the upload storage at the same place
+     * where the router is, and it's in the AlbumController class
      *
-     * Lance une erreur si une personne non connecté tente d'envoyer une image
-     * Lance une erreur si le fichier est indéfini
+     * Move the file to the corresponding user's folder
+     *
+     * @throws Error if non-connected user try to send a Picture
+     * @throws Error if the file is undefined.
+     *
      * @param file
      * @param user
      */
     moveFileToFolder(file: Request['file'], user: User): void
 
     /**
-     * Renvoie les liens de toutes les images que l'utilisateur
-     * a "uploadé"
+     * Return an array of Picture for a specific user
      *
-     * @param user l'utilisateur qui veut récupérer les
-     * photos
-     *
-     * @return une promesse d'avoir un tableau contenant
-     * tous les liens vers les photos que l'utilisateur
-     * a "uploadé"
+     * @param user
+     * @throws Error if non-connected user try to send a Picture
+     * @return a promise to get an array of all user's pictures.
      */
     findUsersPictures(user: User): Promise<any[]>;
 
     /**
-     * 1.Supprime les informations d'une photo de la base de donnée
-     * 2.Supprime la photo du dossier utilisateur
+     * Process the deletion of a file by removing it from the
+     * database and removing it from the user's folder.
+     *
      * @param pictureId
      * @param user
      */
     deleteFile(pictureId : ObjectId, user : User) : Promise<void>;
 
     /**
-     * @api
+     * return the last picture uploaded by the user.
      *
+     * @return a promise to get the last picture posted by the user.
      */
     findLastPicture(user : User) : Promise<any>;
 }

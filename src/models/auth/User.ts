@@ -1,7 +1,7 @@
 
 
 /**
- * Interface d'un utilisateur
+ * Representation of a User
  */
 export interface User {
     /**
@@ -10,7 +10,7 @@ export interface User {
     _id : any;
 
     /**
-     * Nom d'utilisateur
+     * Username
      */
     username : string;
 }

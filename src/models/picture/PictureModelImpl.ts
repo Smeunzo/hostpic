@@ -53,31 +53,19 @@ export class PictureModelImpl implements PictureModel {
         this.movePictureToTheCorrespondingUsersFolder(user,file);
     }
 
-    // noinspection JSUnusedLocalSymbols
-    /**
-     * Déplace l'image se trouvant dans public/pictures
-     * vers public/pictures/username
-     *
-     * Lance une erreur si le chemin currentPath est faux / inexistant
-     * Lance une erreur si le chemin destPath est faux / inexistant
-     *
-     * @param user Correspond à l'utilisateur qui a "uploadé" la photo
-     * @param file Est le fichier correspondant
-     * @deprecated
-     * NOT USED
-     */
-    private movePictureToUsersFolder(user: User, file: any): void {
-
-        const currentPath = path.join('./public/pictures/', file.originalname);
-        const destPath = path.join('./public/pictures/', user.username, file.originalname);
-
-        fs.rename(currentPath, destPath, (err) => {
-            if (err) throw Error(err.message + "déplacement de fichier impossible");
-        });
-    }
 
     /**
-     * replica de la fonction movePictureToUsersFolder
+     * @context if you need it
+     *      @see PictureModel/moveFileToFolder
+     *
+     * Move the file which is in the folder upload/pictures
+     * to upload/pictures/{user.username}
+     *
+     * @throws Error if the currentPath is false or undefined
+     * @throws Error if the destPath is false or undefined
+     *
+     * @param user
+     * @param file
      */
     private movePictureToTheCorrespondingUsersFolder(user : User , file : Request['file']) : void {
 
@@ -91,6 +79,7 @@ export class PictureModelImpl implements PictureModel {
 
     // noinspection JSMethodCanBeStatic
     /**
+     * Resize the picture uploaded by the user
      *
      * @param user
      * @param file
@@ -98,6 +87,7 @@ export class PictureModelImpl implements PictureModel {
     private async resizePicture(user: User, file: any) {
         const pathToFile: string = path.join(Utils.__pathToStorage, user.username, '/', file.originalname);
         const image = await Jimp.read(pathToFile);
+        //286 because it's the basic size for a bootstrap card element
         await image.resize(286, Jimp.AUTO);
         await image.writeAsync(pathToFile);
     }
@@ -126,48 +116,21 @@ export class PictureModelImpl implements PictureModel {
     }
 
     /**
-     * Supprime les informations d'une photo contenu dans la base de donnée
+     * it removes the picture's information from the database
      * @param pictureId
      *
-     * @return un objet du type { _id : ObjectId ,userId : ObjectId , picture : Picture}
+     * @return An Object which looks like this { _id : ObjectId ,userId : ObjectId , picture : Picture}
      */
     private async deleteFileFromDB(pictureId: ObjectId): Promise<any> {
         return (await this.db.collection('pictures').findOneAndDelete({_id: pictureId})).value
     }
 
-    // noinspection JSUnusedLocalSymbols
-    /**
-     * Supprime la photo du dossier utilisateur
-     * @param pictureInformations un object contenant les informations d'une photo à supprimer
-     *
-     * @param user
-     * @deprecated
-     * NOT USED
-     */
-    private async deleteFileFromFolder(pictureInformations: any, user: User): Promise<void> {
-        if (!pictureInformations.picture || !pictureInformations.userId || !pictureInformations._id) throw Error("Impossible de supprimer une image d'un dossier");
-
-        const pictures: any[] = await this.db.collection('pictures').find({userId: new ObjectId(user._id)}).toArray();
-
-        let existInDB = 0;
-        for (let picture of pictures) {
-            if (picture.picture.name == pictureInformations.picture.name) {
-                existInDB = 1;
-                break;
-            }
-        }
-
-        if (existInDB == 0) {
-            fs.unlink('./public/pictures/' + user.username + "/" + pictureInformations.picture.name, (err) => {
-                if (err) throw err
-            })
-        }
-    }
 
     /**
-     * replica de deleteFileFromFolder
+     * it removes the file from the user's folder.
      *
-     * @param pictureInformations
+     * @throws Error if pictureInformations is invalid
+     * @param pictureInformations An object which has been returned by the method deleteFileFromDB.
      * @param user
      */
     private async deletePictureFromUsersFolder(pictureInformations : any , user : User) : Promise<void>{

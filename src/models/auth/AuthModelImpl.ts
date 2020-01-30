@@ -10,13 +10,12 @@ import {Utils} from "../../utils/Utils";
 import * as path from "path";
 
 export class AuthModelImpl implements AuthModel {
-    private db: Db;
 
     /**
-     * Construit un modèle asynchrone.
-     *
-     * @param db Base de données.
+     * @var db the database
      */
+    private db: Db;
+
     constructor(db: Db) {
         this.db = db;
     }
@@ -77,8 +76,7 @@ export class AuthModelImpl implements AuthModel {
 
     // noinspection JSMethodCanBeStatic
     /**
-     *
-     * Lève une exception si l'objet passé en paramètre n'a pas pu être validé.
+     * @throws Error if object is invalid
      *
      * @param object Objet à valider
      */
@@ -88,27 +86,11 @@ export class AuthModelImpl implements AuthModel {
         throw errors;
     }
 
-    // noinspection JSUnusedLocalSymbols
-    /**
-     *Créer le dossier où sera contenu toutes les images
-     * de l'utilisateur
-     *
-     * @deprecated
-     * @param username
-     * NOT USED
-     */
-    private createUsersPicturesDirectory(username: string) {
-        if (!fs.existsSync('./public/pictures/' + username)) {
-            fs.mkdir('./public/pictures/' + username, (err) => {
-                if (err) {
-                    throw Error(err.message + " Impossible de créer le sous-dossier");
-                }
-            })
-        }
-    }
 
     /**
-     * replica de createUsersPicturesDirectory
+     * Creates the user's folder where them pictures will be stored.
+     *
+     * @throws Error if it's impossible to create user's folder.
      * @param username
      */
     private createUsersDirectory(username: string) {
