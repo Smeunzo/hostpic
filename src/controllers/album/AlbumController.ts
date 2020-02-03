@@ -1,4 +1,4 @@
-import {NextFunction, Request, Response, Router} from "express";
+import {Express, NextFunction, Request, Response, Router} from "express";
 import {PictureModel} from "../../models/picture/PictureModel";
 import  multer = require("multer");
 import {AuthController} from "../auth/AuthController";
@@ -24,7 +24,7 @@ export class AlbumController {
         router.post('/upload', this.upload.single('image'), this.postAddPicture.bind(this));
         router.post('/delete/:id', this.postDelete.bind(this));
         router.get('/mypictures', this.getMyPictures.bind(this));
-        router.get('/lastpic',this.getLastPicture.bind(this));
+        router.get('/lastpic', this.getLastPicture.bind(this));
         return router;
     }
 
@@ -38,13 +38,13 @@ export class AlbumController {
     private async postAddPicture(request: Request, response: Response, nextFunction: NextFunction) {
         try {
             await this.pictureModel.newPictureAdded(request.file, response.locals.loggedUser);
-            if(request.xhr){
-                response.json({success : "ok"})
-            }else response.redirect('/album/mypictures')
+            if (request.xhr) {
+                response.json({success: "ok"})
+            } else response.redirect('/album/mypictures')
         } catch (errors) {
-            if(request.xhr){
-                response.json({success : "bad" , errors : errors.message})
-            }else response.render('upload', {token: request.csrfToken(), errors: errors})
+            if (request.xhr) {
+                response.json({success: "bad", errors: errors.message})
+            } else response.render('upload', {token: request.csrfToken(), errors: errors})
         }
     }
 
@@ -77,12 +77,12 @@ export class AlbumController {
         }
     }
 
-    private async getLastPicture(request: Request, response: Response, nextFunction: NextFunction){
-        try{
+    private async getLastPicture(request: Request, response: Response, nextFunction: NextFunction) {
+        try {
             const picture = await this.pictureModel.findLastPicture(response.locals.loggedUser);
-            response.json({status : 'ok' , picture : picture});
-        }catch (errors) {
-            response.json({status : "bad" , errors : errors});
+            response.json({status: 'ok', picture: picture});
+        } catch (errors) {
+            response.json({status: "bad", errors: errors});
         }
     }
 
@@ -117,6 +117,12 @@ export class AlbumController {
                 cb(null, file.originalname);
             }
         });
-        this.upload = multer({storage: storage});
+        const fileFilter = function (req: Express.Request,
+                                     file: Express.Multer.File,
+                                     cb: (err: (Error | null), acceptFile: boolean) => void) {
+            if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') cb(null, true);
+            cb(null, false);
+        };
+        this.upload = multer({storage: storage, fileFilter: fileFilter});
     }
 }
