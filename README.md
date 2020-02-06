@@ -29,7 +29,6 @@ So what I've learned ? (this is not an exhaustive list I assume I've learned mor
     
 #### This section is in French it'll be translated soon as possible !:)    
   
---
 
 ### 1.installer les dépendances
 ```
