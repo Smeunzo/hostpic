@@ -2,7 +2,6 @@
 A website for pictures hosting, and more.
 
 ## TL;DR
-The project is ON I just lack of time because of school. 
 
 If you don't want to install all the project take a look here I'll describe what I've learned, which stack I've used etc...
 
