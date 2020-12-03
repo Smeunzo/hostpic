@@ -42,23 +42,19 @@ sh create_folders.sh
 # unzip the downloaded server here
 ```
     
-### 4.
-    npm build //construire le projet
-    //déplacez vous dans le dossier "/mongoDB/[LE_NOM_DU_SERVEUR]/bin"
-    ./mongod --dbpath="[CHEMIN_VERS_LE_PROJET]/mongoDB/data" //laisser tourner
-    
-    //dans un terminal séparé à la racine 
-    npm start
+### 4. launch the database and the server
+```shell script
+# Build the project
+npm build 
 
+# Move to server bin folder
+cd "/mongoDB/[SERVER_FOLDER_NAME]/bin"
 
+# Run the server
+./mongod --dbpath="`pwd`/mongoDB/data"
 
-
-### 5.
-
-```
-//dans un terminal à la racine 
-//se charge de créer les dossiers
-npm run cf
+# In another terminal inside root project folder
+npm start
 ```
 
 #### Some screenshots
