@@ -1,4 +1,4 @@
-# hostpic
+# Hostpic
 A website for pictures hosting, and more.
 
 ## TL;DR
@@ -7,8 +7,8 @@ If you don't want to install all the project take a look here I'll describe what
 
 Stack used 
     
-    BackEnd : ExpressJs And MongoDB
-    FrontEnd : PugJS, Bootstrap,jQuery
+    BackEnd : NodeJs(with ExpressJs) And MongoDB
+    FrontEnd : PugJS, Bootstrap, jQuery
     
 The whole BackEnd is write in TypeScript and the FrontEnd is PugJs (ex Jade) template
 
@@ -24,24 +24,23 @@ So what I've learned ? (this is not an exhaustive list I assume I've learned mor
 * AJAX Request
 * (TypeScript, JavaScript,npm ,NodeJs, Git and GitHub) obviously 
 * Etc ...
-  
-    
-#### This section is in French it'll be translated soon as possible !:)    
-  
 
-### 1.installer les dépendances
+### 1. Install dependencies
 ```
-npm install // à la racine du projet 
+npm install
 ```
 
-### 2. Télécharger un serveur [mongoDB](https://www.mongodb.com/download-center/community) 
+### 2. Download mongodb database (https://www.mongodb.com/download-center/community) 
     version 4.0.14 
     OS Linux 64-bit legacy x64
     package TGZ
     
-### 3.
-    À la racine du projet créer un dossier /mongoDB et /mongoDB/data
-    décompresser le server dans le dossier /mongoDB
+### 3. Create needed folders (a script will be available soon)
+```shell script    
+# inside the root projet folder  
+sh create_folders.sh
+# unzip the downloaded server here
+```
     
 ### 4.
     npm build //construire le projet
@@ -62,16 +61,16 @@ npm install // à la racine du projet
 npm run cf
 ```
 
-#### quelques screenshots
+#### Some screenshots
 
 ##### login
-![alt text](readme_images/login.png "se connecter ou s'inscrire")
+![alt text](readme_images/login.png "Log in/Sign up")
 
 ##### upload 
-![alt text](readme_images/upload.png "uploader une image ")
+![alt text](readme_images/upload.png "Upload a picture")
 
-##### mes photos
-![alt text](readme_images/mes_photos.png "l'ensemble des photos postées")
+##### my pictures
+![alt text](readme_images/mes_photos.png "My pictures")
 
 ##### administration
-![alt text](readme_images/administration.png "supprimer un utilisateur") 
+![alt text](readme_images/administration.png "Delete user") 
