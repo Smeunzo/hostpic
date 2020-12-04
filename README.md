@@ -51,7 +51,7 @@ npm build
 cd "/mongoDB/[SERVER_FOLDER_NAME]/bin"
 
 # Run the server
-./mongod --dbpath="`pwd`/mongoDB/data"
+./mongod --dbpath="`pwd`/../../data"
 
 # In another terminal inside root project folder
 npm start
