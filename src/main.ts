@@ -1,14 +1,14 @@
 import * as express from "express";
 import * as bodyParser from "body-parser";
 
+import {AuthModel} from "./models/auth/AuthModel";
+import {AdminModel} from "./models/admin/AdminModel";
 import {HomeController} from "./controllers/HomeController";
 import {Db, MongoClient} from "mongodb";
 import {AuthController} from "./controllers/auth/AuthController";
-import {AuthModel} from "./models/auth/AuthModel";
 import {AuthModelImpl} from "./models/auth/AuthModelImpl";
 import {AlbumController} from "./controllers/album/AlbumController";
 import {PictureModelImpl} from "./models/picture/PictureModelImpl";
-import {AdminModel} from "./models/admin/AdminModel";
 import {AdminModelImpl} from "./models/admin/AdminModelImpl";
 import {AdminController} from "./controllers/admin/AdminController";
 import {PictureController} from "./controllers/album/PictureController";
@@ -62,7 +62,7 @@ async function start() {
         saveUninitialized : false,
         store: storageSession,
         cookie :{
-            maxAge : 1000 * 60 * 60, // session d'1 heure
+            maxAge : 1000 * 60 * 60, // 1 hour session
             httpOnly : true
         }
     }));
