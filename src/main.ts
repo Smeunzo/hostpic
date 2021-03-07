@@ -32,7 +32,7 @@ function handleError500(error : any, request: Request, response: Response, next 
 }
 
 async function start() {
-     const mongoClient = await MongoClient.connect('mongodb://localhost',{useUnifiedTopology : true});
+     const mongoClient = await MongoClient.connect('mongodb://mongo:27017',{useUnifiedTopology : true});
      const db : Db = mongoClient.db('project');
 
     const homeController = new HomeController();
@@ -51,7 +51,7 @@ async function start() {
     myExpress.set('view engine','pug');
     const MongoDbStore = connectMongoDbStore(session);
     const storageSession = new MongoDbStore({
-        uri : 'mongodb://localhost',
+        uri : 'mongodb://mongo:27017',
         databaseName : 'project',
         collection: 'sessions'
     });

@@ -1,0 +1,10 @@
+node_module/
+.idea/
+.git/
+mongoDB/
+readme_images/
+dist/
+.gitignore
+Dockerfile
+README.md
+upload/
